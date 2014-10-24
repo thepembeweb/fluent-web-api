@@ -74,7 +74,8 @@ namespace WebApi.Dynamic.Services
                     var modelTypes = assembly.GetTypes().Where(t => t.IsClass && typeof(IApiModel).IsAssignableFrom(t) && string.Equals(t.Name, controllerName, StringComparison.OrdinalIgnoreCase)).ToListOrNull();
                     if (modelTypes != null && modelTypes.Count == 1)
                     {
-                        var controllerType = typeof(DynamicApiController<>).MakeGenericType(modelTypes.First());
+                        //TODO get the correct TKey type
+                        var controllerType = typeof(DynamicApiController<,>).MakeGenericType(modelTypes.First(), typeof(int));
                         controllerDescriptor = new HttpControllerDescriptor(_configuration, controllerName, controllerType);
                         _controllerInfoCache.Value.TryAdd(controllerName, controllerDescriptor);
 
