@@ -71,15 +71,25 @@ namespace WebApi.Dynamic.Services
                         continue;
                     }
 
+                    // Search all types that implement IApiModel (or actually, IApiModel<>) and which name matches the desired controllerName.
                     var modelTypes = assembly.GetTypes().Where(t => t.IsClass && typeof(IApiModel).IsAssignableFrom(t) && string.Equals(t.Name, controllerName, StringComparison.OrdinalIgnoreCase)).ToListOrNull();
                     if (modelTypes != null && modelTypes.Count == 1)
                     {
-                        //TODO get the correct TKey type
-                        var controllerType = typeof(DynamicApiController<,>).MakeGenericType(modelTypes.First(), typeof(int));
-                        controllerDescriptor = new HttpControllerDescriptor(_configuration, controllerName, controllerType);
-                        _controllerInfoCache.Value.TryAdd(controllerName, controllerDescriptor);
+                        // Search the IApiModel<> type definition to retrieve the correct TKey type parameter.
+                        var apiModelType = typeof(IApiModel<>);
+                        var modelType = modelTypes.First();
+                        var apiModels = modelType.FindInterfaces((t, c) => t.IsConstructedGenericType && t.GetGenericTypeDefinition() == apiModelType, null);
+                        if (apiModels.Length > 0)
+                        {
+                            var apiModel = apiModels.First();
+                            // Create a new type for DynamicApiController<IApiModel<TKey>, TKey>
+                            var controllerType = typeof(DynamicApiController<,>).MakeGenericType(modelType, apiModel.GenericTypeArguments[0]);
 
-                        return controllerDescriptor;
+                            controllerDescriptor = new HttpControllerDescriptor(_configuration, controllerName, controllerType);
+                            _controllerInfoCache.Value.TryAdd(controllerName, controllerDescriptor);
+
+                            return controllerDescriptor;
+                        }
                     }
                 }
             }
