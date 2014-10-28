@@ -4,7 +4,7 @@ using WebApi.Dynamic.Model;
 
 namespace WebApi.Dynamic.Controllers
 {
-    public class DynamicApiController<T, TKey> : ApiController where T : class, IApiModel<TKey>
+    class DynamicApiController<T, TKey> : ApiController where T : class, IApiModel<TKey>
     {
         private readonly ApiModelBinder<T, TKey> _modelBinder;
 

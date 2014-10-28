@@ -2,14 +2,7 @@
 
 namespace WebApi.Dynamic.Model
 {
-    //public interface IDataProvider
-    //{
-    //    IEnumerable<object> Get();
-
-    //    object GetByKey(object key);
-    //}
-
-    public interface IDataProvider<out T, in TKey> //: IDataProvider 
+    public interface IDataProvider<out T, in TKey>
         where T : class, IApiModel<TKey>
     {
         IEnumerable<T> Get();

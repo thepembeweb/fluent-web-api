@@ -13,7 +13,7 @@ using WebApi.Dynamic.Model;
 
 namespace WebApi.Dynamic.Services
 {
-    public class DynamicControllerSelector : DefaultHttpControllerSelector
+    class DynamicControllerSelector : DefaultHttpControllerSelector
     {
         private readonly HttpConfiguration _configuration;
         private readonly Lazy<ConcurrentDictionary<string, HttpControllerDescriptor>> _controllerInfoCache;
