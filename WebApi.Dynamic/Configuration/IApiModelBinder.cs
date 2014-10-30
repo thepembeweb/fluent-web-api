@@ -2,7 +2,7 @@
 
 namespace WebApi.Dynamic.Configuration
 {
-    public interface IApiModelBinder<in T, in TKey> where T : class, IApiModel<TKey>
+    public interface IApiModelBinder<in T> where T : class, IApiModel
     {
         
     }
