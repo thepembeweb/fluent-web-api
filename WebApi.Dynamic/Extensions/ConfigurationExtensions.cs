@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web.Http;
+using FluentWebApi.Controllers;
 using FluentWebApi.Model;
 using FluentWebApi.Routing;
 
@@ -128,7 +130,7 @@ namespace FluentWebApi.Configuration
 
             route.DataRetriever = func;
             return ApiModelBinder<T>.Instance;
-        } 
+        }
 
         public static IApiModelBinder<T> Use<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
             where T : class, IApiModel<TKey>
@@ -145,7 +147,25 @@ namespace FluentWebApi.Configuration
 
             route.DataRetriever = func;
             return ApiModelBinder<T>.Instance;
+        }
+
+        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<HelperApiController, TKey, IHttpActionResult> func)
+            where T : class, IApiModel<TKey>
+        {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route");
+            }
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+            route.Replier = func;
+            return ApiModelBinder<T>.Instance;
         } 
+
 
         //public static IApiModelBinder<T, TKey> Use<T, TKey>(this IApiModelBinder<T, TKey> apiModelBinder, Func<TKey, T> func)
         //    where T : class, IApiModel<TKey>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.Results;
 using DynamicWebApi.Models;
 using FluentWebApi.Configuration;
 
@@ -33,7 +34,19 @@ namespace DynamicWebApi
                 Use(id => data.FirstOrDefault(c => c.Id == id));
 
 
+            // GET /api/Customer/1/Custom
+            request.
+                OnGet<Customer, int>(/* how to do this... */).
+                ReplyWith((controller, id) =>
+                {
+                    var model = data.FirstOrDefault(c => c.Id == id);
+                    if (model == null)
+                    {
+                        return controller.NotFound();
+                    }
 
+                    return controller.Ok(new { FullName = string.Format("{0} {1}", model.FirstName, model.LastName) });
+                });
 
 
 
