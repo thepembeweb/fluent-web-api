@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using FluentWebApi.Model;
 using FluentWebApi.Routing;
 
@@ -115,9 +116,30 @@ namespace FluentWebApi.Configuration
             throw new InvalidOperationException();
         }
 
-        public void AddRoute(HttpVerb httpVerb)
+        public Route<T> AddRoute(HttpVerb httpVerb)
         {
-            
+            var route = new Route<T>(httpVerb);
+            Storage<T>.Routes.Add(route);
+
+            return route;
+        }
+
+        public Route<T> GetRoute(HttpVerb httpVerb)
+        {
+            return Storage<T>.Routes.FirstOrDefault(r => r.HttpVerb == httpVerb);
+        } 
+        
+        public Route<T, TData> AddRoute<TData>(HttpVerb httpVerb)
+        {
+            var route = new Route<T, TData>(httpVerb);
+            Storage<T, TData>.Routes.Add(route);
+
+            return route;
+        }
+
+        public Route<T, TData> GetRoute<TData>(HttpVerb httpVerb)
+        {
+            return Storage<T, TData>.Routes.FirstOrDefault(r => r.HttpVerb == httpVerb);
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Linq;
 using System.Web.Http;
 using DynamicWebApi.Models;
 using FluentWebApi.Configuration;
@@ -20,9 +20,28 @@ namespace DynamicWebApi
             
             var request = config.UseFluentWebApi();
 
+            // Add routes
+
+            // GET /api/Customer
+            request.
+                OnGet<Customer>().
+                Use(() => data);
+
+            // GET /api/Customer/1
+            request.
+                OnGet<Customer, int>().
+                Use(id => data.FirstOrDefault(c => c.Id == id));
+
+
+
+
+
+
+
+
             // Set up the data providers for the Customer API model
             //request.OnGet<Customer>().Use(_ => new List<Customer>()).Reply();
-            //request.OnGet<Customer>(It.Any<int>()).Use(id => new Customer()).Reply();
+            //request.OnGet<Customer, int>().Use(id => new Customer()).Reply();
             //request.OnPost<Customer>().Use(c => new Customer()).Reply();
             
             //TODO Return a route something something instead of IApiModelBinder? Useful when you need to give only a set 
