@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace WebApi.Dynamic.Model
+namespace FluentWebApi.Model
 {
     class ListDataProvider<T, TKey> : IDataProvider<T, TKey> 
         where T : class, IApiModel<TKey>

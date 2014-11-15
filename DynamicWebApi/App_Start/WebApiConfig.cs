@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Web.Http;
 using DynamicWebApi.Models;
-using WebApi.Dynamic.Configuration;
+using FluentWebApi.Configuration;
 
 namespace DynamicWebApi
 {
@@ -17,14 +18,17 @@ namespace DynamicWebApi
 
             // Web API configuration and services
             
-            var request = config.UseDynamicWebApi();
+            var request = config.UseFluentWebApi();
 
             // Set up the data providers for the Customer API model
-            request.OnGet<Customer>();
+            //request.OnGet<Customer>().Use(_ => new List<Customer>()).Reply();
+            //request.OnGet<Customer>(It.Any<int>()).Use(id => new Customer()).Reply();
+            //request.OnPost<Customer>().Use(c => new Customer()).Reply();
+            
             //TODO Return a route something something instead of IApiModelBinder? Useful when you need to give only a set 
             //     of extension methods
 
-            request.OnPost<Customer>();
+            //request.OnPost<Customer>();
 
             //config.For<Customer, int>()
             //    .Use(id => data.FirstOrDefault(c => c.Id == id))

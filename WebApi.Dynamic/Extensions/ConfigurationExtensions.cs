@@ -1,8 +1,8 @@
-﻿using WebApi.Dynamic.Model;
-using WebApi.Dynamic.Routing;
+﻿using FluentWebApi.Model;
+using FluentWebApi.Routing;
 
 // ReSharper disable once CheckNamespace
-namespace WebApi.Dynamic.Configuration
+namespace FluentWebApi.Configuration
 {
     public static class ConfigurationExtensions
     {

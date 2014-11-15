@@ -1,16 +1,16 @@
 ﻿using System.Web.Http;
-using WebApi.Dynamic.Configuration;
-using WebApi.Dynamic.Model;
+using FluentWebApi.Configuration;
+using FluentWebApi.Model;
 
-namespace WebApi.Dynamic.Controllers
+namespace FluentWebApi.Controllers
 {
     class DynamicApiController<T, TKey> : ApiController where T : class, IApiModel<TKey>
     {
-        private readonly ApiModelBinder<T, TKey> _modelBinder;
+        private readonly ApiModelBinder<T> _modelBinder;
 
         public DynamicApiController()
         {
-            _modelBinder = ApiModelBinder<T, TKey>.Instance;
+            _modelBinder = ApiModelBinder<T>.Instance;
         }
 
         public IHttpActionResult Get()

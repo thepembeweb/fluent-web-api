@@ -1,4 +1,4 @@
-﻿namespace WebApi.Dynamic.Routing
+﻿namespace FluentWebApi.Routing
 {
     public class HttpVerb
     {

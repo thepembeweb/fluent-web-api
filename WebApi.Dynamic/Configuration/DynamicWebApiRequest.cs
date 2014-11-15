@@ -1,4 +1,4 @@
-﻿namespace WebApi.Dynamic.Configuration
+﻿namespace FluentWebApi.Configuration
 {
     public class DynamicWebApiRequest
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using WebApi.Dynamic.Model;
-using WebApi.Dynamic.Routing;
+using FluentWebApi.Model;
+using FluentWebApi.Routing;
 
-namespace WebApi.Dynamic.Configuration
+namespace FluentWebApi.Configuration
 {
     class ApiModelBinder<T> : IApiModelBinder<T> where T : class, IApiModel
     {
