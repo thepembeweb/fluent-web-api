@@ -15,16 +15,16 @@ namespace FluentWebApi.Configuration {
 
         internal HttpVerb HttpVerb { get; private set; }
         internal Func<IEnumerable<T>> DataRetriever { get; set; }
-        internal Func<HelperApiController, IHttpActionResult> Replier { get; set; }
+        internal Func<Responder, IHttpActionResult> Replier { get; set; }
 
         internal IEnumerable<T> GetData()
         {
             return DataRetriever();
         }
 
-        internal IHttpActionResult Reply()
+        internal IHttpActionResult Reply(ApiController controller)
         {
-            return Replier(HelperApiController.Instance);
+            return Replier(new Responder(controller));
         }
     }
 
@@ -39,16 +39,16 @@ namespace FluentWebApi.Configuration {
         internal HttpVerb HttpVerb { get; private set; }
 
         internal Func<TKey, T> DataRetriever { get; set; }
-        internal Func<HelperApiController, TKey, IHttpActionResult> Replier { get; set; }
+        internal Func<Responder, TKey, IHttpActionResult> Replier { get; set; }
 
         internal T GetData(TKey id)
         {
             return DataRetriever(id);
         }
 
-        internal IHttpActionResult Reply(TKey id)
+        internal IHttpActionResult Reply(ApiController controller, TKey id)
         {
-            return Replier(HelperApiController.Instance, id);
+            return Replier(new Responder(controller), id);
         }
     }
 }

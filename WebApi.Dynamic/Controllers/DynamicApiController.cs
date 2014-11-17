@@ -10,23 +10,26 @@ using FluentWebApi.Routing;
 
 namespace FluentWebApi.Controllers
 {
-    public class HelperApiController : ApiController
+    public class Responder : ApiController
     {
-        private static readonly HelperApiController _instance;
+        private readonly ApiController _parent;
 
-        static HelperApiController()
+        private Responder() { }
+
+        internal Responder(ApiController parent)
         {
-            _instance = new HelperApiController(); //Create a default instance
+            _parent = parent;
+            InitializeContext();
         }
 
-        private HelperApiController() { }
-
-        public static HelperApiController Instance
+        private void InitializeContext()
         {
-            get
-            {
-                return _instance;
-            }
+            ActionContext = _parent.ActionContext;
+            Configuration = _parent.Configuration;
+            ControllerContext = _parent.ControllerContext;
+            Request = _parent.Request;
+            RequestContext = _parent.RequestContext;
+            User = _parent.User;
         }
 
         public new OkResult Ok()
@@ -107,7 +110,7 @@ namespace FluentWebApi.Controllers
 
             if (route.Replier != null)
             {
-                return route.Reply();
+                return route.Reply(this);
             }
             
             return Ok(route.GetData());
@@ -124,7 +127,7 @@ namespace FluentWebApi.Controllers
 
             if (route.Replier != null)
             {
-                return route.Reply(id);
+                return route.Reply(this, id);
             }
 
             var model = route.GetData(id);

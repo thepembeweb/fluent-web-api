@@ -29,9 +29,9 @@ namespace DynamicWebApi
                 Use(() => data);
 
             // GET /api/Customer/1
-            request.
-                OnGet<Customer, int>().
-                Use(id => data.FirstOrDefault(c => c.Id == id));
+            //request.
+            //    OnGet<Customer, int>().
+            //    Use(id => data.FirstOrDefault(c => c.Id == id));
 
 
             // GET /api/Customer/1/Custom
@@ -47,10 +47,6 @@ namespace DynamicWebApi
 
                     return controller.Ok(new { FullName = string.Format("{0} {1}", model.FirstName, model.LastName) });
                 });
-
-
-
-
 
             // Set up the data providers for the Customer API model
             //request.OnGet<Customer>().Use(_ => new List<Customer>()).Reply();

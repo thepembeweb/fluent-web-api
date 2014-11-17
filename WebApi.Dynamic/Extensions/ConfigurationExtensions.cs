@@ -149,7 +149,7 @@ namespace FluentWebApi.Configuration
             return ApiModelBinder<T>.Instance;
         }
 
-        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<HelperApiController, TKey, IHttpActionResult> func)
+        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<Responder, TKey, IHttpActionResult> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
