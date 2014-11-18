@@ -60,7 +60,6 @@
     <Compile Include="Configuration\IApiModelBinder.cs" />
     <Compile Include="Configuration\ApiModelBinder.cs" />
     <Compile Include="Configuration\Route.cs" />
-    <Compile Include="Configuration\Storage.cs" />
     <Compile Include="Controllers\DynamicApiController.cs" />
     <Compile Include="Extensions\HttpConfigurationExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />

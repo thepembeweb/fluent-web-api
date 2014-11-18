@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FluentWebApi.Model;
 using FluentWebApi.Routing;
 
@@ -7,6 +8,7 @@ namespace FluentWebApi.Configuration
     class ApiModelBinder<T> : IApiModelBinder<T> where T : class, IApiModel
     {
         private static readonly ApiModelBinder<T> _instance;
+        private readonly IList<Route<T>> _routes = new List<Route<T>>();
 
         static ApiModelBinder()
         {
@@ -29,27 +31,27 @@ namespace FluentWebApi.Configuration
         public Route<T> AddRoute(HttpVerb httpVerb)
         {
             var route = new Route<T>(httpVerb);
-            Storage<T>.Routes.Add(route);
+            _routes.Add(route);
 
             return route;
         }
 
         public Route<T> GetRoute(HttpVerb httpVerb)
         {
-            return Storage<T>.Routes.FirstOrDefault(r => r.HttpVerb == httpVerb && r.KeyType == null);
+            return _routes.FirstOrDefault(r => r.HttpVerb == httpVerb && r.KeyType == null);
         } 
         
         public Route<T> AddRoute<TData>(HttpVerb httpVerb)
         {
             var route = new Route<T>(httpVerb, typeof(TData));
-            Storage<T>.Routes.Add(route);
+            _routes.Add(route);
 
             return route;
         }
 
         public Route<T> GetRoute<TData>(HttpVerb httpVerb)
         {
-            return Storage<T>.Routes.FirstOrDefault(
+            return _routes.FirstOrDefault(
                 r => r.HttpVerb == httpVerb && r.KeyType == typeof(TData));
         }
     }
