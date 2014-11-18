@@ -41,7 +41,7 @@ namespace FluentWebApi.Services
             IHttpRouteData routeData = request.GetRouteData();
             if (routeData != null && routeData.Route.DataTokens != null)
             {
-                object controllerTypeObj = null;
+                object controllerTypeObj;
                 if (routeData.Route.DataTokens.TryGetValue("ControllerType", out controllerTypeObj))
                 {
                     var controllerType = controllerTypeObj as Type;
