@@ -61,6 +61,7 @@
     <Compile Include="Configuration\ApiModelBinder.cs" />
     <Compile Include="Configuration\Route.cs" />
     <Compile Include="Controllers\DynamicApiController.cs" />
+    <Compile Include="Controllers\RequestBackedHttpRequestContext.cs" />
     <Compile Include="Extensions\HttpConfigurationExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\ConfigurationExtensions.cs" />
@@ -69,7 +70,7 @@
     <Compile Include="Model\SimpleDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\HttpVerb.cs" />
-    <Compile Include="Services\DynamicControllerSelector.cs" />
+    <Compile Include="Services\FluentApiHttpHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -29,7 +29,7 @@ namespace FluentWebApi.Configuration
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static Route<T> OnGet<T>(this DynamicWebApiRequest request) where T : class, IApiModel
+        public static Route<T> OnGet<T>(this FluentWebApiRequest request) where T : class, IApiModel
         {
             return OnVerb<T>(HttpVerb.Get);
         }
@@ -42,7 +42,7 @@ namespace FluentWebApi.Configuration
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static Route<T> OnGet<T, TKey>(this DynamicWebApiRequest request) where T : class, IApiModel
+        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, default(TKey));
         }
@@ -56,7 +56,7 @@ namespace FluentWebApi.Configuration
         /// <param name="request"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        public static Route<T> OnGet<T, TKey>(this DynamicWebApiRequest request, TKey id) where T : class, IApiModel
+        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request, TKey id) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, id);
         }
@@ -68,7 +68,7 @@ namespace FluentWebApi.Configuration
         /// <param name="request"></param>
         /// <param name="model">An instance of the model class, can be null</param>
         /// <returns></returns>
-        public static Route<T> OnPost<T>(this DynamicWebApiRequest request, T model) where T : class, IApiModel
+        public static Route<T> OnPost<T>(this FluentWebApiRequest request, T model) where T : class, IApiModel
         {
             return OnVerb<T>(HttpVerb.Post);
         }
@@ -84,7 +84,7 @@ namespace FluentWebApi.Configuration
         /// <param name="id">Any value of <typeparamref name="TKey"/></param>
         /// <param name="model">An instance of the model class, can be null</param>
         /// <returns></returns>
-        public static Route<T> OnPut<T, TKey>(this DynamicWebApiRequest request, TKey id, T model) where T : class, IApiModel
+        public static Route<T> OnPut<T, TKey>(this FluentWebApiRequest request, TKey id, T model) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Put, id);
         }
@@ -98,17 +98,17 @@ namespace FluentWebApi.Configuration
         /// <param name="request"></param>
         /// <param name="id">Any value of <typeparamref name="TKey"/></param>
         /// <returns></returns>
-        public static Route<T> OnDelete<T, TKey>(this DynamicWebApiRequest request, TKey id) where T : class, IApiModel
+        public static Route<T> OnDelete<T, TKey>(this FluentWebApiRequest request, TKey id) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Delete, id);
         }
 
-        public static Route<T> OnCustomHttpVerb<T>(this DynamicWebApiRequest request, string verb) where T : class, IApiModel
+        public static Route<T> OnCustomHttpVerb<T>(this FluentWebApiRequest request, string verb) where T : class, IApiModel
         {
             return OnVerb<T>(HttpVerb.GetVerb(verb));
         }
 
-        public static Route<T> OnCustomHttpVerb<T, TParams>(this DynamicWebApiRequest request, string verb, TParams parameters = null) 
+        public static Route<T> OnCustomHttpVerb<T, TParams>(this FluentWebApiRequest request, string verb, TParams parameters = null) 
             where T : class, IApiModel
             where TParams : class
         {

@@ -1,16 +1,13 @@
-﻿using System.Web.Http.Dispatcher;
-using FluentWebApi.Configuration;
-using FluentWebApi.Services;
+﻿using FluentWebApi.Configuration;
 
 // ReSharper disable once CheckNamespace
 namespace System.Web.Http
 {
     public static class HttpConfigurationExtensions
     {
-        public static DynamicWebApiRequest UseFluentWebApi(this HttpConfiguration config)
+        public static FluentWebApiRequest UseFluentWebApi(this HttpConfiguration config)
         {
-            config.Services.Replace(typeof(IHttpControllerSelector), new DynamicControllerSelector(config));
-            return new DynamicWebApiRequest();
+            return new FluentWebApiRequest();
         }
     }
 }

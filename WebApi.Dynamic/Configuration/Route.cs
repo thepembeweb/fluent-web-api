@@ -6,11 +6,17 @@ using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
 using FluentWebApi.Routing;
+using FluentWebApi.Services;
 
 namespace FluentWebApi.Configuration {
     internal class Route
     {
         internal static readonly Type ApiModelType = typeof(IApiModel<>);
+        
+        // DataToken constants
+        internal const string FluentApiEnabled = "FluentApiEnabled";
+        internal const string ControllerType = "ControllerType";
+        internal const string ControllerName = "ControllerName";
     }
 
     public class Route<T>
@@ -65,12 +71,13 @@ namespace FluentWebApi.Configuration {
 
             var dataTokens = new Dictionary<string, object>
             {
-                {"ControllerType", controllerType},
-                {"ControllerName", modelType.Name}
+                {Route.FluentApiEnabled, true},
+                {Route.ControllerType, controllerType},
+                {Route.ControllerName, modelType.Name}
             };
 
             // Create a HttpRoute object 
-            var httpRoute = GlobalConfiguration.Configuration.Routes.CreateRoute(routeTemplate, defaults: null, constraints: null, dataTokens: dataTokens, handler: null);
+            var httpRoute = GlobalConfiguration.Configuration.Routes.CreateRoute(routeTemplate, defaults: null, constraints: null, dataTokens: dataTokens, handler: new FluentApiHttpHandler(GlobalConfiguration.Configuration));
 
             // and add it to the routing table
             var routeName = GetRouteName();
