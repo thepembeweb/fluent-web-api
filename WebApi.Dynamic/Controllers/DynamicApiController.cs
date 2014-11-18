@@ -125,12 +125,12 @@ namespace FluentWebApi.Controllers
                 return InternalServerError();
             }
 
-            if (route.Replier != null)
+            if (route.ReplierWithId != null)
             {
                 return route.Reply(this, id);
             }
 
-            var model = route.GetData(id);
+            var model = route.GetDataById(id);
             if (model == null)
             {
                 return NotFound();

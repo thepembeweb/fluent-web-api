@@ -42,7 +42,7 @@ namespace FluentWebApi.Configuration
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static Route<T, TKey> OnGet<T, TKey>(this DynamicWebApiRequest request) where T : class, IApiModel
+        public static Route<T> OnGet<T, TKey>(this DynamicWebApiRequest request) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, default(TKey));
         }
@@ -70,7 +70,7 @@ namespace FluentWebApi.Configuration
         /// <param name="id">Any value of <typeparamref name="TKey"/></param>
         /// <param name="model">An instance of the model class, can be null</param>
         /// <returns></returns>
-        public static Route<T, TKey> OnPut<T, TKey>(this DynamicWebApiRequest request, TKey id, T model) where T : class, IApiModel
+        public static Route<T> OnPut<T, TKey>(this DynamicWebApiRequest request, TKey id, T model) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Put, id);
         }
@@ -84,7 +84,7 @@ namespace FluentWebApi.Configuration
         /// <param name="request"></param>
         /// <param name="id">Any value of <typeparamref name="TKey"/></param>
         /// <returns></returns>
-        public static Route<T, TKey> OnDelete<T, TKey>(this DynamicWebApiRequest request, TKey id) where T : class, IApiModel
+        public static Route<T> OnDelete<T, TKey>(this DynamicWebApiRequest request, TKey id) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Delete, id);
         }
@@ -94,7 +94,7 @@ namespace FluentWebApi.Configuration
             return OnVerb<T>(HttpVerb.GetVerb(verb));
         }
 
-        public static Route<T, TParams> OnCustomHttpVerb<T, TParams>(this DynamicWebApiRequest request, string verb, TParams parameters = null) 
+        public static Route<T> OnCustomHttpVerb<T, TParams>(this DynamicWebApiRequest request, string verb, TParams parameters = null) 
             where T : class, IApiModel
             where TParams : class
         {
@@ -108,7 +108,7 @@ namespace FluentWebApi.Configuration
             return apiModelBinder.AddRoute(verb);
         }
 
-        private static Route<T, TParams> OnVerb<T, TParams>(HttpVerb verb, TParams parameters) 
+        private static Route<T> OnVerb<T, TParams>(HttpVerb verb, TParams parameters) 
             where T : class, IApiModel
         {
             var apiModelBinder = ApiModelBinder<T>.Instance;
@@ -128,11 +128,11 @@ namespace FluentWebApi.Configuration
                 throw new ArgumentNullException("func");
             }
 
-            route.DataRetriever = func;
+            route.CollectionRetriever = func;
             return ApiModelBinder<T>.Instance;
         }
 
-        public static IApiModelBinder<T> Use<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
+        public static IApiModelBinder<T> Use<T, TKey>(this Route<T> route, Func<TKey, T> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
@@ -145,11 +145,11 @@ namespace FluentWebApi.Configuration
                 throw new ArgumentNullException("func");
             }
 
-            route.DataRetriever = func;
+            route.SetItemRetriever(func);
             return ApiModelBinder<T>.Instance;
         }
 
-        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<Responder, TKey, IHttpActionResult> func)
+        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T> route, Func<Responder, TKey, IHttpActionResult> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
@@ -162,73 +162,8 @@ namespace FluentWebApi.Configuration
                 throw new ArgumentNullException("func");
             }
 
-            route.Replier = func;
+            route.SetReplierWithId(func);
             return ApiModelBinder<T>.Instance;
         } 
-
-
-        //public static IApiModelBinder<T, TKey> Use<T, TKey>(this IApiModelBinder<T, TKey> apiModelBinder, Func<TKey, T> func)
-        //    where T : class, IApiModel<TKey>
-        //{
-        //    if (apiModelBinder == null)
-        //    {
-        //        throw new ArgumentNullException("apiModelBinder");
-        //    }
-
-        //    if (func == null)
-        //    {
-        //        throw new ArgumentNullException("func");
-        //    }
-
-        //    var amb = apiModelBinder as ApiModelBinder<T, TKey>;
-        //    if (amb.HasCustomDataProvider)
-        //    {
-        //        throw new InvalidOperationException("A custom data provider has been configured for this IApiModel.");
-        //    }
-
-        //    amb.AddDataProvider(func);
-        //    return amb;
-        //}
-
-        //public static IApiModelBinder<T, TKey> Use<T, TKey>(this IApiModelBinder<T, TKey> apiModelBinder, Func<IEnumerable<T>> func)
-        //    where T : class, IApiModel<TKey>
-        //{
-        //    if (apiModelBinder == null)
-        //    {
-        //        throw new ArgumentNullException("apiModelBinder");
-        //    }
-
-        //    if (func == null)
-        //    {
-        //        throw new ArgumentNullException("func");
-        //    }
-
-        //    var amb = apiModelBinder as ApiModelBinder<T, TKey>;
-        //    if (amb.HasCustomDataProvider)
-        //    {
-        //        throw new InvalidOperationException("A custom data provider has been configured for this IApiModel.");
-        //    }
-
-        //    amb.AddDataProvider(func);
-        //    return amb;
-        //}
-
-        //public static IApiModelBinder<T, TKey> Use<T, TKey>(this IApiModelBinder<T, TKey> apiModelBinder, IDataProvider<T, TKey> dataProvider)
-        //    where T : class, IApiModel<TKey>
-        //{
-        //    if (apiModelBinder == null)
-        //    {
-        //        throw new ArgumentNullException("apiModelBinder");
-        //    }
-
-        //    if (dataProvider == null)
-        //    {
-        //        throw new ArgumentNullException("dataProvider");
-        //    }
-
-        //    var amb = apiModelBinder as ApiModelBinder<T, TKey>;
-        //    amb.SetCustomDataProvider(dataProvider);
-        //    return amb;
-        //}
     }
 }
