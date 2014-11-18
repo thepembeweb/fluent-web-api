@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentWebApi.Model;
 using FluentWebApi.Routing;
@@ -30,7 +31,17 @@ namespace FluentWebApi.Configuration
 
         public Route<T> AddRoute(HttpVerb httpVerb)
         {
-            var route = new Route<T>(httpVerb);
+            return AddRoute(httpVerb, null);
+        }
+
+        public Route<T> AddRoute<TData>(HttpVerb httpVerb)
+        {
+            return AddRoute(httpVerb, typeof(TData));
+        }
+
+        private Route<T> AddRoute(HttpVerb httpVerb, Type parameter)
+        {
+            var route = new Route<T>(httpVerb, parameter);
             _routes.Add(route);
 
             return route;
@@ -39,14 +50,6 @@ namespace FluentWebApi.Configuration
         public Route<T> GetRoute(HttpVerb httpVerb)
         {
             return _routes.FirstOrDefault(r => r.HttpVerb == httpVerb && r.KeyType == null);
-        } 
-        
-        public Route<T> AddRoute<TData>(HttpVerb httpVerb)
-        {
-            var route = new Route<T>(httpVerb, typeof(TData));
-            _routes.Add(route);
-
-            return route;
         }
 
         public Route<T> GetRoute<TData>(HttpVerb httpVerb)

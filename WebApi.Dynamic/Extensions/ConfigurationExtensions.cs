@@ -48,6 +48,20 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
+        /// Adds a <see cref="HttpVerb.Get"/> route for the model type <typeparamref name="T"/>.
+        /// The route will also have an ID parameter to identify the resource being retrieved. 
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
+        /// <param name="request"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public static Route<T> OnGet<T, TKey>(this DynamicWebApiRequest request, TKey id) where T : class, IApiModel
+        {
+            return OnVerb<T, TKey>(HttpVerb.Get, id);
+        }
+
+        /// <summary>
         /// Adds a <see cref="HttpVerb.Post"/> route for the model type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>

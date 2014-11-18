@@ -3,13 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.Routing;
-using FluentWebApi.Controllers;
-using FluentWebApi.Model;
 
 namespace FluentWebApi.Services
 {
@@ -42,54 +39,20 @@ namespace FluentWebApi.Services
             }
 
             IHttpRouteData routeData = request.GetRouteData();
-            HttpControllerDescriptor controllerDescriptor;
-            if (routeData != null)
+            if (routeData != null && routeData.Route.DataTokens != null)
             {
-                // TODO Deal with attribute routing
-                //controllerDescriptor = base.GetDirectRouteController(routeData);
-                //if (controllerDescriptor != null)
-                //{
-                //    return controllerDescriptor;
-                //}
-            }
-
-            string controllerName = GetControllerName(request);
-            if (!String.IsNullOrEmpty(controllerName))
-            {
-                if (_controllerInfoCache.Value.TryGetValue(controllerName, out controllerDescriptor))
+                object controllerTypeObj = null;
+                if (routeData.Route.DataTokens.TryGetValue("ControllerType", out controllerTypeObj))
                 {
-                    return controllerDescriptor;
-                }
-
-                // Try to locate a dynamic API model that matches the controller name
-                ICollection<Assembly> assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                foreach (Assembly assembly in assemblies)
-                {
-                    if (assembly == null || assembly.IsDynamic)
+                    var controllerType = controllerTypeObj as Type;
+                    if (controllerType != null)
                     {
-                        // can't call GetTypes on a null (or dynamic?) assembly
-                        continue;
-                    }
+                        //Found a dynamic api controller type!
+                        string controllerName = routeData.Route.DataTokens["ControllerName"].ToString();
+                        var controllerDescriptor = new HttpControllerDescriptor(_configuration, controllerName, controllerType);
+                        _controllerInfoCache.Value.TryAdd(controllerName, controllerDescriptor);
 
-                    // Search all types that implement IApiModel (or actually, IApiModel<>) and which name matches the desired controllerName.
-                    var modelTypes = assembly.GetTypes().Where(t => t.IsClass && typeof(IApiModel).IsAssignableFrom(t) && string.Equals(t.Name, controllerName, StringComparison.OrdinalIgnoreCase)).ToListOrNull();
-                    if (modelTypes != null && modelTypes.Count == 1)
-                    {
-                        // Search the IApiModel<> type definition to retrieve the correct TKey type parameter.
-                        var apiModelType = typeof(IApiModel<>);
-                        var modelType = modelTypes.First();
-                        var apiModels = modelType.FindInterfaces((t, c) => t.IsConstructedGenericType && t.GetGenericTypeDefinition() == apiModelType, null);
-                        if (apiModels.Length > 0)
-                        {
-                            var apiModel = apiModels.First();
-                            // Create a new type for DynamicApiController<IApiModel<TKey>, TKey>
-                            var controllerType = typeof(DynamicApiController<,>).MakeGenericType(modelType, apiModel.GenericTypeArguments[0]);
-
-                            controllerDescriptor = new HttpControllerDescriptor(_configuration, controllerName, controllerType);
-                            _controllerInfoCache.Value.TryAdd(controllerName, controllerDescriptor);
-
-                            return controllerDescriptor;
-                        }
+                        return controllerDescriptor;
                     }
                 }
             }
