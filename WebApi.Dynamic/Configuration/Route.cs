@@ -23,8 +23,10 @@ namespace FluentWebApi.Configuration {
         where T : class, IApiModel {
 
         // Allowed, we're caching the type definition for each IApiModel
-        // ReSharper disable once StaticFieldInGenericType
+        // ReSharper disable StaticFieldInGenericType
         private static Type _dynamicApiControllerTypeDefinition;
+        private static readonly Type ModelType = typeof(T);
+        // ReSharper enable StaticFieldInGenericType
 
         internal Route(HttpVerb httpVerb) : this(httpVerb, null, null) { }
 
@@ -43,39 +45,8 @@ namespace FluentWebApi.Configuration {
         {
             // Initialize the vars based on the data in this Fluent API route.
             var routeTemplate = GetRouteTemplate();
-
-            // Find the IApiModel<TKey> matching the model type
-            Type controllerType = _dynamicApiControllerTypeDefinition;
-            var modelType = typeof(T);
-
-            if (controllerType == null)
-            {
-                var apiModels = modelType.FindInterfaces((t, c) => t.IsConstructedGenericType && t.GetGenericTypeDefinition() == Route.ApiModelType, null);
-                if (apiModels.Length > 0)
-                {
-                    var apiModel = apiModels.First();
-                    // Create a new type for FluentWebApiController<IApiModel<TKey>, TKey>
-                    controllerType = typeof(FluentWebApiController<,>).MakeGenericType(modelType, apiModel.GenericTypeArguments[0]);
-                }
-            }
-
-            if (controllerType == null)
-            {
-                throw new InvalidOperationException(string.Format("\"{0}\" does not implement the FluentWebApi.Model.IApiModel<TKey> interface.", modelType.Name));
-            }
+            var dataTokens = GetDataTokens();
             
-            if (_dynamicApiControllerTypeDefinition == null)
-            {
-                _dynamicApiControllerTypeDefinition = controllerType;
-            }
-
-            var dataTokens = new Dictionary<string, object>
-            {
-                {Route.FluentWebApiEnabled, true},
-                {Route.ControllerType, controllerType},
-                {Route.ControllerName, modelType.Name}
-            };
-
             // Create a HttpRoute object 
             var httpRoute = GlobalConfiguration.Configuration.Routes.CreateRoute(routeTemplate, defaults: null, constraints: null, dataTokens: dataTokens, handler: new FluentApiHttpHandler(GlobalConfiguration.Configuration));
 
@@ -116,6 +87,40 @@ namespace FluentWebApi.Configuration {
             }
 
             return routeName.ToString();
+        }
+
+        private Dictionary<string, object> GetDataTokens()
+        {
+            // Find the IApiModel<TKey> matching the model type
+            Type controllerType = _dynamicApiControllerTypeDefinition;
+
+            if (controllerType == null)
+            {
+                var apiModels = ModelType.FindInterfaces((t, c) => t.IsConstructedGenericType && t.GetGenericTypeDefinition() == Route.ApiModelType, null);
+                if (apiModels.Length > 0)
+                {
+                    var apiModel = apiModels.First();
+                    // Create a new type for FluentWebApiController<IApiModel<TKey>, TKey>
+                    controllerType = typeof(FluentWebApiController<,>).MakeGenericType(ModelType, apiModel.GenericTypeArguments[0]);
+                }
+            }
+
+            if (controllerType == null)
+            {
+                throw new InvalidOperationException(string.Format("\"{0}\" does not implement the FluentWebApi.Model.IApiModel<TKey> interface.", ModelType.Name));
+            }
+
+            if (_dynamicApiControllerTypeDefinition == null)
+            {
+                _dynamicApiControllerTypeDefinition = controllerType;
+            }
+
+            return new Dictionary<string, object>
+            {
+                {Route.FluentWebApiEnabled, true},
+                {Route.ControllerType, controllerType},
+                {Route.ControllerName, ModelType.Name}
+            };
         }
 
         internal string RouteTemplate { get; private set; }
