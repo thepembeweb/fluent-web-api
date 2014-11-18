@@ -14,7 +14,7 @@ namespace FluentWebApi.Configuration {
         internal static readonly Type ApiModelType = typeof(IApiModel<>);
         
         // DataToken constants
-        internal const string FluentApiEnabled = "FluentApiEnabled";
+        internal const string FluentWebApiEnabled = "FluentWebApiEnabled";
         internal const string ControllerType = "ControllerType";
         internal const string ControllerName = "ControllerName";
     }
@@ -54,8 +54,8 @@ namespace FluentWebApi.Configuration {
                 if (apiModels.Length > 0)
                 {
                     var apiModel = apiModels.First();
-                    // Create a new type for DynamicApiController<IApiModel<TKey>, TKey>
-                    controllerType = typeof(DynamicApiController<,>).MakeGenericType(modelType, apiModel.GenericTypeArguments[0]);
+                    // Create a new type for FluentWebApiController<IApiModel<TKey>, TKey>
+                    controllerType = typeof(FluentWebApiController<,>).MakeGenericType(modelType, apiModel.GenericTypeArguments[0]);
                 }
             }
 
@@ -71,7 +71,7 @@ namespace FluentWebApi.Configuration {
 
             var dataTokens = new Dictionary<string, object>
             {
-                {Route.FluentApiEnabled, true},
+                {Route.FluentWebApiEnabled, true},
                 {Route.ControllerType, controllerType},
                 {Route.ControllerName, modelType.Name}
             };

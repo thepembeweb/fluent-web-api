@@ -70,7 +70,7 @@ namespace FluentWebApi.Services
             if (routeData != null && routeData.Route.DataTokens != null)
             {
                 object isEnabled;
-                if (routeData.Route.DataTokens.TryGetValue(Route.FluentApiEnabled, out isEnabled) && (bool)isEnabled)
+                if (routeData.Route.DataTokens.TryGetValue(Route.FluentWebApiEnabled, out isEnabled) && (bool)isEnabled)
                 {
                     var controllerType = routeData.Route.DataTokens[Route.ControllerType] as Type;
                     var controllerName = routeData.Route.DataTokens[Route.ControllerName] as string;

@@ -1,12 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.Results;
-using FluentWebApi.Configuration;
-using FluentWebApi.Model;
-using FluentWebApi.Routing;
 
 namespace FluentWebApi.Controllers
 {
@@ -88,56 +85,5 @@ namespace FluentWebApi.Controllers
         }
 
         
-    }
-
-    class DynamicApiController<T, TKey> : ApiController where T : class, IApiModel<TKey>
-    {
-        private readonly ApiModelBinder<T> _modelBinder;
-
-        public DynamicApiController()
-        {
-            _modelBinder = ApiModelBinder<T>.Instance;
-        }
-
-        public IHttpActionResult Get()
-        {
-            var route = _modelBinder.GetRoute(HttpVerb.Get);
-            if (route == null)
-            {
-                //TODO Provide a descriptive exception
-                return InternalServerError();
-            }
-
-            if (route.Replier != null)
-            {
-                return route.Reply(this);
-            }
-            
-            return Ok(route.GetData());
-        }
-
-        public IHttpActionResult GetById(TKey id)
-        {
-            var route = _modelBinder.GetRoute<TKey>(HttpVerb.Get);
-            if (route == null)
-            {
-                //TODO Provide a descriptive exception
-                return InternalServerError();
-            }
-
-            if (route.ReplierWithId != null)
-            {
-                return route.Reply(this, id);
-            }
-
-            var model = route.GetDataById(id);
-            if (model == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(model);
-        }
-
     }
 }

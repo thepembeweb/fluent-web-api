@@ -56,12 +56,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\DynamicWebApiRequest.cs" />
+    <Compile Include="Configuration\FluentWebApiRequest.cs" />
     <Compile Include="Configuration\IApiModelBinder.cs" />
     <Compile Include="Configuration\ApiModelBinder.cs" />
     <Compile Include="Configuration\Route.cs" />
-    <Compile Include="Controllers\DynamicApiController.cs" />
+    <Compile Include="Controllers\FluentWebApiController.cs" />
     <Compile Include="Controllers\RequestBackedHttpRequestContext.cs" />
+    <Compile Include="Controllers\Responder.cs" />
     <Compile Include="Extensions\HttpConfigurationExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\ConfigurationExtensions.cs" />
