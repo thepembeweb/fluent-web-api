@@ -30,12 +30,12 @@ namespace DynamicWebApi
             // GET /api/Customer/1
             request.
                 OnGet<Customer, int>().
-                Use<Customer, int>(id => data.FirstOrDefault(c => c.Id == id));
+                Use(id => data.FirstOrDefault(c => c.Id == id));
 
             // GET /api/Customer/1/Fullname
             request.
                 OnGet<Customer, int>(new { RouteTemplate = "api/Customer/{id}/Fullname", RouteName = "GetFullNameFromCustomer" }).
-                ReplyWith<Customer, int>((controller, id) =>
+                ReplyWith((controller, id) =>
                 {
                     var model = data.FirstOrDefault(c => c.Id == id);
                     if (model == null)

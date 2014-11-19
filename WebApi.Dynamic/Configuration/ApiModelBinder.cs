@@ -36,9 +36,12 @@ namespace FluentWebApi.Configuration
             return AddRoute(httpVerb, null, routeDictionary);
         }
 
-        public Route<T> AddRoute<TData>(HttpVerb httpVerb, IDictionary<string, string> routeDictionary = null)
+        public Route<T, TData> AddRoute<TData>(HttpVerb httpVerb, IDictionary<string, string> routeDictionary = null)
         {
-            return AddRoute(httpVerb, typeof(TData), routeDictionary);
+            var route = new Route<T, TData>(httpVerb, routeDictionary);
+            _routes.Add(route);
+
+            return route;
         }
 
         private Route<T> AddRoute(HttpVerb httpVerb, Type parameter, IDictionary<string, string> routeDictionary)

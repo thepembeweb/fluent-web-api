@@ -206,4 +206,12 @@ namespace FluentWebApi.Configuration {
             return ReplierWithId(new Responder(controller), id);
         }
     }
+
+    public class Route<T, TKey> : Route<T> where T : class, IApiModel
+    {
+        internal Route(HttpVerb httpVerb) : this(httpVerb, null) { }
+
+        internal Route(HttpVerb httpVerb, IDictionary<string, string> routeDictionary) 
+            : base(httpVerb, typeof(TKey), routeDictionary) { }
+    }
 }

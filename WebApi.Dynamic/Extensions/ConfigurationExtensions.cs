@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
@@ -12,19 +11,6 @@ namespace FluentWebApi.Configuration
 {
     public static class ConfigurationExtensions
     {
-
-        //public static IApiModelBinder<T, TKey> For<T, TKey>(this HttpConfiguration config)
-        //    where T : class, IApiModel<TKey>
-        //{
-        //    return ApiModelBinder<T, TKey>.Instance;
-        //}
-
-        //public static IApiModelBinder<T> Get<T, TKey>(this HttpConfiguration config)
-        //    where T : class, IApiModel<TKey>
-        //{
-        //    return ApiModelBinder<T, TKey>.Instance;
-        //}
-
         /// <summary>
         /// Adds a <see cref="HttpVerb.Get"/> route for the model type <typeparamref name="T"/>.
         /// </summary>
@@ -44,7 +30,7 @@ namespace FluentWebApi.Configuration
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
         /// <param name="request"></param>
         /// <returns></returns>
-        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request) where T : class, IApiModel
+        public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, default(TKey));
         }
@@ -58,7 +44,7 @@ namespace FluentWebApi.Configuration
         /// <param name="request"></param>
         /// <param name="routeDictionary"></param>
         /// <returns></returns>
-        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request, object routeDictionary) where T : class, IApiModel
+        public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request, object routeDictionary) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, default(TKey), ToDictionary(routeDictionary));
         }
@@ -72,7 +58,7 @@ namespace FluentWebApi.Configuration
         /// <param name="request"></param>
         /// <param name="routeDictionary"></param>
         /// <returns></returns>
-        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request, IDictionary<string, string> routeDictionary) where T : class, IApiModel
+        public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request, IDictionary<string, string> routeDictionary) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, default(TKey), routeDictionary);
         }
@@ -100,7 +86,7 @@ namespace FluentWebApi.Configuration
         /// <param name="id">Any value of <typeparamref name="TKey"/></param>
         /// <param name="model">An instance of the model class, can be null</param>
         /// <returns></returns>
-        public static Route<T> OnPut<T, TKey>(this FluentWebApiRequest request, TKey id, T model) where T : class, IApiModel
+        public static Route<T, TKey> OnPut<T, TKey>(this FluentWebApiRequest request, TKey id, T model) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Put, id);
         }
@@ -114,7 +100,7 @@ namespace FluentWebApi.Configuration
         /// <param name="request"></param>
         /// <param name="id">Any value of <typeparamref name="TKey"/></param>
         /// <returns></returns>
-        public static Route<T> OnDelete<T, TKey>(this FluentWebApiRequest request, TKey id) where T : class, IApiModel
+        public static Route<T, TKey> OnDelete<T, TKey>(this FluentWebApiRequest request, TKey id) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Delete, id);
         }
@@ -124,7 +110,7 @@ namespace FluentWebApi.Configuration
             return OnVerb<T>(HttpVerb.GetVerb(verb));
         }
 
-        public static Route<T> OnCustomHttpVerb<T, TParams>(this FluentWebApiRequest request, string verb, TParams parameters = null) 
+        public static Route<T, TParams> OnCustomHttpVerb<T, TParams>(this FluentWebApiRequest request, string verb, TParams parameters = null) 
             where T : class, IApiModel
             where TParams : class
         {
@@ -138,7 +124,7 @@ namespace FluentWebApi.Configuration
             return apiModelBinder.AddRoute(verb);
         }
 
-        private static Route<T> OnVerb<T, TParams>(HttpVerb verb, TParams parameters, IDictionary<string, string> routeDictionary = null) 
+        private static Route<T, TParams> OnVerb<T, TParams>(HttpVerb verb, TParams parameters, IDictionary<string, string> routeDictionary = null) 
             where T : class, IApiModel
         {
             var apiModelBinder = ApiModelBinder<T>.Instance;
@@ -162,7 +148,7 @@ namespace FluentWebApi.Configuration
             return ApiModelBinder<T>.Instance;
         }
 
-        public static IApiModelBinder<T> Use<T, TKey>(this Route<T> route, Func<TKey, T> func)
+        public static IApiModelBinder<T> Use<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
@@ -179,7 +165,7 @@ namespace FluentWebApi.Configuration
             return ApiModelBinder<T>.Instance;
         }
 
-        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T> route, Func<Responder, TKey, IHttpActionResult> func)
+        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<Responder, TKey, IHttpActionResult> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
