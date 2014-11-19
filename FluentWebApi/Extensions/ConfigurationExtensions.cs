@@ -131,7 +131,7 @@ namespace FluentWebApi.Configuration
             return apiModelBinder.AddRoute<TParams>(verb, routeDictionary);
         }
 
-        public static IApiModelBinder<T> Use<T>(this Route<T> route, Func<IEnumerable<T>> func)
+        public static Route<T> Use<T>(this Route<T> route, Func<IEnumerable<T>> func)
             where T : class, IApiModel
         {
             if (route == null)
@@ -145,10 +145,10 @@ namespace FluentWebApi.Configuration
             }
 
             route.CollectionRetriever = func;
-            return ApiModelBinder<T>.Instance;
+            return route;
         }
 
-        public static IApiModelBinder<T> Use<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
+        public static Route<T, TKey> Use<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
@@ -162,10 +162,27 @@ namespace FluentWebApi.Configuration
             }
 
             route.SetItemRetriever(func);
-            return ApiModelBinder<T>.Instance;
+            return route;
         }
 
-        public static IApiModelBinder<T> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<Responder, TKey, IHttpActionResult> func)
+        public static Route<T> ReplyWith<T>(this Route<T> route, Func<Responder, IHttpActionResult> func)
+            where T : class, IApiModel
+        {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route");
+            }
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+            route.Replier = func;
+            return route;
+        }
+
+        public static Route<T, TKey> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<Responder, TKey, IHttpActionResult> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
@@ -179,7 +196,7 @@ namespace FluentWebApi.Configuration
             }
 
             route.SetReplierWithId(func);
-            return ApiModelBinder<T>.Instance;
+            return route;
         }
 
         private static IDictionary<string, string> ToDictionary(object values)
