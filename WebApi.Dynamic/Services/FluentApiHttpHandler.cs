@@ -12,7 +12,6 @@ using System.Web.Http.Controllers;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.ExceptionHandling;
 using System.Web.Http.Routing;
-using FluentWebApi.Configuration;
 using ExceptionCatchBlocks = System.Web.Http.ExceptionHandling.ExceptionCatchBlocks;
 using ExceptionContext = System.Web.Http.ExceptionHandling.ExceptionContext;
 using IExceptionHandler = System.Web.Http.ExceptionHandling.IExceptionHandler;
@@ -67,13 +66,13 @@ namespace FluentWebApi.Services
             }
 
             IHttpRouteData routeData = request.GetRouteData();
-            if (routeData != null && routeData.Route.DataTokens != null)
+            if (routeData != null && routeData.Route != null)
             {
-                object isEnabled;
-                if (routeData.Route.DataTokens.TryGetValue(Route.FluentWebApiEnabled, out isEnabled) && (bool)isEnabled)
+                var route = routeData.Route;
+                if (route.IsFluentWebApiEnabled())
                 {
-                    var controllerType = routeData.Route.DataTokens[Route.ControllerType] as Type;
-                    var controllerName = routeData.Route.DataTokens[Route.ControllerName] as string;
+                    var controllerType = route.GetControllerType();
+                    var controllerName = route.GetControllerName();
 
                     if (controllerType != null && controllerName != null)
                     {

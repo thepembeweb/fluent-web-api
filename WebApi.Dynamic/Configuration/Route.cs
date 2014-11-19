@@ -9,14 +9,20 @@ using FluentWebApi.Routing;
 using FluentWebApi.Services;
 
 namespace FluentWebApi.Configuration {
-    internal class Route
+    public class Route
     {
+        private Route() {}
+
         internal static readonly Type ApiModelType = typeof(IApiModel<>);
         
         // DataToken constants
         internal const string FluentWebApiEnabled = "FluentWebApiEnabled";
         internal const string ControllerType = "ControllerType";
         internal const string ControllerName = "ControllerName";
+        
+        // RouteDictionary constants
+        public const string RouteTemplate = "RouteTemplate";
+        public const string RouteName = "RouteName";
     }
 
     public class Route<T>
@@ -32,11 +38,11 @@ namespace FluentWebApi.Configuration {
 
         internal Route(HttpVerb httpVerb, Type keyType) : this(httpVerb, keyType, null) { }
 
-        internal Route(HttpVerb httpVerb, Type keyType, string routeTemplate)
+        internal Route(HttpVerb httpVerb, Type keyType, IDictionary<string, string> routeDictionary)
         {
             HttpVerb = httpVerb;
             KeyType = keyType;
-            RouteTemplate = routeTemplate;
+            RouteDictionary = routeDictionary;
 
             InitializeHttpRoute();
         } 
@@ -51,42 +57,62 @@ namespace FluentWebApi.Configuration {
             var httpRoute = GlobalConfiguration.Configuration.Routes.CreateRoute(routeTemplate, defaults: null, constraints: null, dataTokens: dataTokens, handler: new FluentApiHttpHandler(GlobalConfiguration.Configuration));
 
             // and add it to the routing table
-            var routeName = GetRouteName();
-            GlobalConfiguration.Configuration.Routes.Add(routeName, httpRoute);
+            EnsureRouteName();
+            GlobalConfiguration.Configuration.Routes.Add(Name, httpRoute);
         }
 
         private string GetRouteTemplate()
         {
-            if (!string.IsNullOrWhiteSpace(RouteTemplate))
+            if (RouteDictionary != null)
             {
-                // If a template has been given, use that.
-                return RouteTemplate; 
+                string routeTemplate;
+                if (RouteDictionary.TryGetValue(Route.RouteTemplate, out routeTemplate))
+                {
+                    return routeTemplate;
+                }
             }
 
             // Build a template based on the current IApiModel type
-            var routeTemplate = new StringBuilder(64);
-            routeTemplate.AppendFormat("api/{0}", typeof(T).Name);
+            var routeTemplateBuilder = new StringBuilder(64);
+            routeTemplateBuilder.AppendFormat("api/{0}", typeof(T).Name);
 
             if (KeyType != null)
             {
-                routeTemplate.Append("/{id}");
+                routeTemplateBuilder.Append("/{id}");
             }
 
-            return routeTemplate.ToString();
+            return routeTemplateBuilder.ToString();
+        }
+
+        private void EnsureRouteName()
+        {
+            if (Name == null)
+            {
+                Name = GetRouteName();
+            }
         }
 
         private string GetRouteName()
         {
+            if (RouteDictionary != null)
+            {
+                string routeName;
+                if (RouteDictionary.TryGetValue(Route.RouteName, out routeName))
+                {
+                    return routeName;
+                }
+            }
+
             // Return a route name based on the IApiModel, the verb, and key type
-            var routeName = new StringBuilder(64);
-            routeName.AppendFormat("{0}.{1}", typeof(T).Name, HttpVerb.Verb);
+            var routeNameBuilder = new StringBuilder(64);
+            routeNameBuilder.AppendFormat("{0}.{1}", typeof(T).Name, HttpVerb.Verb);
 
             if (KeyType != null)
             {
-                routeName.AppendFormat(".{0}", KeyType.Name);
+                routeNameBuilder.AppendFormat(".{0}", KeyType.Name);
             }
 
-            return routeName.ToString();
+            return routeNameBuilder.ToString();
         }
 
         private Dictionary<string, object> GetDataTokens()
@@ -115,15 +141,19 @@ namespace FluentWebApi.Configuration {
                 _dynamicApiControllerTypeDefinition = controllerType;
             }
 
+            EnsureRouteName();
             return new Dictionary<string, object>
             {
                 {Route.FluentWebApiEnabled, true},
                 {Route.ControllerType, controllerType},
-                {Route.ControllerName, ModelType.Name}
+                {Route.ControllerName, ModelType.Name},
+                {Route.RouteName, Name}
             };
         }
 
-        internal string RouteTemplate { get; private set; }
+        internal string Name { get; private set; }
+
+        internal IDictionary<string, string> RouteDictionary { get; private set; }
 
         internal HttpVerb HttpVerb { get; private set; }
         internal Type KeyType { get; private set; }

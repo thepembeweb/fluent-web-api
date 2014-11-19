@@ -16,7 +16,7 @@ namespace FluentWebApi.Controllers
 
         public IHttpActionResult Get()
         {
-            var route = _modelBinder.GetRoute(HttpVerb.Get);
+            var route = _modelBinder.GetRoute(HttpVerb.Get, Request);
             if (route == null)
             {
                 //TODO Provide a descriptive exception
@@ -33,7 +33,7 @@ namespace FluentWebApi.Controllers
 
         public IHttpActionResult GetById(TKey id)
         {
-            var route = _modelBinder.GetRoute<TKey>(HttpVerb.Get);
+            var route = _modelBinder.GetRoute<TKey>(HttpVerb.Get, Request);
             if (route == null)
             {
                 //TODO Provide a descriptive exception

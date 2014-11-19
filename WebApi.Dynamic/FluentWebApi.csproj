@@ -66,6 +66,7 @@
     <Compile Include="Extensions\HttpConfigurationExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\ConfigurationExtensions.cs" />
+    <Compile Include="Extensions\IHttpRouteExtensions.cs" />
     <Compile Include="Model\IApiModel.cs" />
     <Compile Include="Model\IDataProvider.cs" />
     <Compile Include="Model\SimpleDataProvider.cs" />

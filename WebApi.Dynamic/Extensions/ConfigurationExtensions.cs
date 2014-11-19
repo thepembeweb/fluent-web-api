@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
@@ -54,11 +56,25 @@ namespace FluentWebApi.Configuration
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
         /// <param name="request"></param>
-        /// <param name="id"></param>
+        /// <param name="routeDictionary"></param>
         /// <returns></returns>
-        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request, TKey id) where T : class, IApiModel
+        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request, object routeDictionary) where T : class, IApiModel
         {
-            return OnVerb<T, TKey>(HttpVerb.Get, id);
+            return OnVerb<T, TKey>(HttpVerb.Get, default(TKey), ToDictionary(routeDictionary));
+        }
+
+        /// <summary>
+        /// Adds a <see cref="HttpVerb.Get"/> route for the model type <typeparamref name="T"/>.
+        /// The route will also have an ID parameter to identify the resource being retrieved. 
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
+        /// <param name="request"></param>
+        /// <param name="routeDictionary"></param>
+        /// <returns></returns>
+        public static Route<T> OnGet<T, TKey>(this FluentWebApiRequest request, IDictionary<string, string> routeDictionary) where T : class, IApiModel
+        {
+            return OnVerb<T, TKey>(HttpVerb.Get, default(TKey), routeDictionary);
         }
 
         /// <summary>
@@ -122,11 +138,11 @@ namespace FluentWebApi.Configuration
             return apiModelBinder.AddRoute(verb);
         }
 
-        private static Route<T> OnVerb<T, TParams>(HttpVerb verb, TParams parameters) 
+        private static Route<T> OnVerb<T, TParams>(HttpVerb verb, TParams parameters, IDictionary<string, string> routeDictionary = null) 
             where T : class, IApiModel
         {
             var apiModelBinder = ApiModelBinder<T>.Instance;
-            return apiModelBinder.AddRoute<TParams>(verb);
+            return apiModelBinder.AddRoute<TParams>(verb, routeDictionary);
         }
 
         public static IApiModelBinder<T> Use<T>(this Route<T> route, Func<IEnumerable<T>> func)
@@ -178,6 +194,22 @@ namespace FluentWebApi.Configuration
 
             route.SetReplierWithId(func);
             return ApiModelBinder<T>.Instance;
-        } 
+        }
+
+        private static IDictionary<string, string> ToDictionary(object values)
+        {
+            var valuesAsDictionary = values as IDictionary<string, string>;
+            if (valuesAsDictionary != null)
+            {
+                return valuesAsDictionary;
+            }
+
+            if (values != null)
+            {
+                return values.GetType().GetProperties().ToDictionary(property => property.Name, property => property.GetValue(values) as string);
+            }
+
+            return null;
+        }
     }
 }
