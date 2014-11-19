@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
@@ -12,45 +13,49 @@ namespace FluentWebApi.Configuration
     public static class ConfigurationExtensions
     {
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the model type <typeparamref name="T"/>.
+        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public static Route<T> OnGet<T>(this FluentWebApiRequest request) where T : class, IApiModel
+        public static Route<T> OnGet<T>(this FluentWebApiRequest request, Expression<Func<T>> expression = null) where T : class, IApiModel
         {
             return OnVerb<T>(HttpVerb.Get);
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the model type <typeparamref name="T"/>.
+        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
         /// The route will also have an ID parameter to identify the resource being retrieved. 
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request) where T : class, IApiModel
+        public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request, Expression<Func<TKey, T>> expression = null) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, default(TKey));
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the model type <typeparamref name="T"/>.
+        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
         /// The route will also have an ID parameter to identify the resource being retrieved. 
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
-        /// <param name="request"></param>
-        /// <param name="routeDictionary"></param>
-        /// <returns></returns>
         public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request, object routeDictionary) where T : class, IApiModel
         {
             return OnVerb<T, TKey>(HttpVerb.Get, default(TKey), ToDictionary(routeDictionary));
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the model type <typeparamref name="T"/>.
+        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
+        /// The route will also have an ID parameter to identify the resource being retrieved. 
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
+        public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request, Expression<Func<TKey, T>> expression, object routeDictionary) where T : class, IApiModel
+        {
+            return OnVerb<T, TKey>(HttpVerb.Get, default(TKey), ToDictionary(routeDictionary));
+        }
+
+        /// <summary>
+        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
         /// The route will also have an ID parameter to identify the resource being retrieved. 
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
@@ -64,7 +69,18 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Post"/> route for the model type <typeparamref name="T"/>.
+        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
+        /// The route will also have an ID parameter to identify the resource being retrieved. 
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
+        public static Route<T, TKey> OnGet<T, TKey>(this FluentWebApiRequest request, Expression<Func<TKey, T>> expression, IDictionary<string, string> routeDictionary) where T : class, IApiModel
+        {
+            return OnVerb<T, TKey>(HttpVerb.Get, default(TKey), routeDictionary);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="HttpVerb.Post"/> route for the resource type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         /// <param name="request"></param>
@@ -76,7 +92,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Put"/> route for the model type <typeparamref name="T"/>.
+        /// Adds a <see cref="HttpVerb.Put"/> route for the resource type <typeparamref name="T"/>.
         /// The route will also have a <paramref name="id"/> parameter to identify the resource being updated (or created), 
         /// using the values stored in <paramref name="model"/>.
         /// </summary>
@@ -92,7 +108,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Delete"/> route for the model type <typeparamref name="T"/>.
+        /// Adds a <see cref="HttpVerb.Delete"/> route for the resource type <typeparamref name="T"/>.
         /// The route will also have an <paramref name="id"/> parameter to identify the resource being deleted.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>

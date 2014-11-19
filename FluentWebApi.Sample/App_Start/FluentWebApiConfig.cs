@@ -24,17 +24,25 @@ namespace FluentWebApi.Sample
 
             // GET /api/Customer
             request.
-                OnGet<Customer>().
+                // When you perform a GET on the Customer resource
+                OnGet(() => Resource.Of<Customer>()).
+                // Use this method to retrieve the customers
                 Use(() => data);
+                // And reply using the default mechanism
+
 
             // GET /api/Customer/1
             request.
-                OnGet<Customer, int>().
+                // When you perform a GET with an int ID on the Customer resource
+                OnGet((int id) => Resource.Of<Customer>()).
+                // Use this method to retrieve the customer
                 Use(id => data.FirstOrDefault(c => c.Id == id));
+                // And reply using the default mechanism
+
 
             // GET /api/Customer/1/Fullname
             request.
-                OnGet<Customer, int>(new { RouteTemplate = "api/Customer/{id}/Fullname", RouteName = "GetFullNameFromCustomer" }).
+                OnGet((int id) => Resource.Of<Customer>(), new { RouteTemplate = "api/Customer/{id}/Fullname", RouteName = "GetFullNameFromCustomer" }).
                 ReplyWith((controller, id) =>
                 {
                     var model = data.FirstOrDefault(c => c.Id == id);
