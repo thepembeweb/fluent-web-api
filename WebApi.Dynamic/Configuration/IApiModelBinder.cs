@@ -1,8 +1,8 @@
-﻿using WebApi.Dynamic.Model;
+﻿using FluentWebApi.Model;
 
-namespace WebApi.Dynamic.Configuration
+namespace FluentWebApi.Configuration
 {
-    public interface IApiModelBinder<in T, in TKey> where T : class, IApiModel<TKey>
+    public interface IApiModelBinder<in T> where T : class, IApiModel
     {
         
     }

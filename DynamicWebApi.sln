@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicWebApi", "DynamicWebApi\DynamicWebApi.csproj", "{406E2F43-81FF-4FB9-9551-EFE1CF9B72BA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApi.Dynamic", "WebApi.Dynamic\WebApi.Dynamic.csproj", "{5B2DDEF0-2544-4336-B086-8FE8BBB0D49F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FluentWebApi", "WebApi.Dynamic\FluentWebApi.csproj", "{5B2DDEF0-2544-4336-B086-8FE8BBB0D49F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

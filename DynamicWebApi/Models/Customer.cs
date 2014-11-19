@@ -1,4 +1,4 @@
-﻿using WebApi.Dynamic.Model;
+﻿using FluentWebApi.Model;
 
 namespace DynamicWebApi.Models
 {
