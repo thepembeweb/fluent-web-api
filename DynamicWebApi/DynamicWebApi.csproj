@@ -117,6 +117,7 @@
   <ItemGroup>
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\FluentWebApiConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\HelpPage\ApiDescriptionExtensions.cs" />
@@ -206,9 +207,9 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WebApi.Dynamic\WebApi.Dynamic.csproj">
+    <ProjectReference Include="..\WebApi.Dynamic\FluentWebApi.csproj">
       <Project>{5b2ddef0-2544-4336-b086-8fe8bbb0d49f}</Project>
-      <Name>WebApi.Dynamic</Name>
+      <Name>FluentWebApi</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

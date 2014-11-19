@@ -7,8 +7,8 @@
     <ProjectGuid>{5B2DDEF0-2544-4336-B086-8FE8BBB0D49F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebApi.Dynamic</RootNamespace>
-    <AssemblyName>WebApi.Dynamic</AssemblyName>
+    <RootNamespace>FluentWebApi</RootNamespace>
+    <AssemblyName>FluentWebApi</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -56,17 +56,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\FluentWebApiRequest.cs" />
     <Compile Include="Configuration\IApiModelBinder.cs" />
     <Compile Include="Configuration\ApiModelBinder.cs" />
-    <Compile Include="Controllers\DynamicApiController.cs" />
+    <Compile Include="Configuration\Route.cs" />
+    <Compile Include="Controllers\FluentWebApiController.cs" />
+    <Compile Include="Controllers\RequestBackedHttpRequestContext.cs" />
+    <Compile Include="Controllers\Responder.cs" />
     <Compile Include="Extensions\HttpConfigurationExtensions.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\ConfigurationExtensions.cs" />
+    <Compile Include="Extensions\IHttpRouteExtensions.cs" />
     <Compile Include="Model\IApiModel.cs" />
-    <Compile Include="Model\IDataProvider.cs" />
-    <Compile Include="Model\SimpleDataProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\DynamicControllerSelector.cs" />
+    <Compile Include="Routing\HttpVerb.cs" />
+    <Compile Include="Services\FluentApiHttpHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

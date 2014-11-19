@@ -1,4 +1,4 @@
-﻿namespace WebApi.Dynamic.Model
+﻿namespace FluentWebApi.Model
 {
     public interface IApiModel { }
     

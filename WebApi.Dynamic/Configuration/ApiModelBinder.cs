@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using WebApi.Dynamic.Model;
+using System.Linq;
+using System.Net.Http;
+using System.Web.Http.Routing;
+using FluentWebApi.Model;
+using FluentWebApi.Routing;
 
-namespace WebApi.Dynamic.Configuration
+namespace FluentWebApi.Configuration
 {
-    class ApiModelBinder<T, TKey> : IApiModelBinder<T, TKey> where T : class, IApiModel<TKey>
+    class ApiModelBinder<T> : IApiModelBinder<T> where T : class, IApiModel
     {
-        private IDataProvider<T, TKey> _customDataProvider;
-        private IDataProvider<T, TKey> _returnsT;
-        private IDataProvider<T, TKey> _returnsIEnumerableOfT;
-
-        private static readonly ApiModelBinder<T, TKey> _instance;
+        private static readonly ApiModelBinder<T> _instance;
+        private readonly IList<Route<T>> _routes = new List<Route<T>>();
 
         static ApiModelBinder()
         {
-            _instance = new ApiModelBinder<T, TKey>(); //Create a default instance per bound IApiModel
+            _instance = new ApiModelBinder<T>(); //Create a default instance per bound IApiModel
         }
 
         private ApiModelBinder()
@@ -22,7 +23,7 @@ namespace WebApi.Dynamic.Configuration
             
         }
 
-        public static ApiModelBinder<T, TKey> Instance
+        public static ApiModelBinder<T> Instance
         {
             get
             {
@@ -30,88 +31,62 @@ namespace WebApi.Dynamic.Configuration
             }
         }
 
-        public bool HasCustomDataProvider
+        public Route<T> AddRoute(HttpVerb httpVerb, IDictionary<string, string> routeDictionary = null)
         {
-            get
-            {
-                return _customDataProvider != null;
-            }
+            return AddRoute(httpVerb, null, routeDictionary);
         }
 
-        public bool HasListDataProvider
+        public Route<T, TData> AddRoute<TData>(HttpVerb httpVerb, IDictionary<string, string> routeDictionary = null)
         {
-            get
-            {
-                return _customDataProvider != null || _returnsIEnumerableOfT != null;
-            }
+            var route = new Route<T, TData>(httpVerb, routeDictionary);
+            _routes.Add(route);
+
+            return route;
         }
 
-        public bool HasSingleDataProvider
+        private Route<T> AddRoute(HttpVerb httpVerb, Type parameter, IDictionary<string, string> routeDictionary)
         {
-            get
-            {
-                return _customDataProvider != null || _returnsT != null;
-            }
+            var route = new Route<T>(httpVerb, parameter, routeDictionary);
+            _routes.Add(route);
+
+            return route;
         }
 
-        public void AddDataProvider(Func<TKey, T> func)
+        public Route<T> GetRoute(HttpVerb httpVerb, HttpRequestMessage request)
         {
-            if (func == null)
-            {
-                throw new ArgumentNullException("func");
-            }
+            var route = GetRouteByName(request);
 
-            _returnsT = new SingleDataProvider<T, TKey>(func);
+            if (route != null)
+            {
+                return route;
+            }
+            
+            return _routes.FirstOrDefault(r => r.HttpVerb == httpVerb && r.KeyType == null);
         }
 
-        public void AddDataProvider(Func<IEnumerable<T>> func)
+        public Route<T> GetRoute<TData>(HttpVerb httpVerb, HttpRequestMessage request)
         {
-            if (func == null)
+            var route = GetRouteByName(request);
+
+            if (route != null)
             {
-                throw new ArgumentNullException("func");
+                return route;
             }
 
-            _returnsIEnumerableOfT = new ListDataProvider<T, TKey>(func);
+            return _routes.FirstOrDefault(
+                r => r.HttpVerb == httpVerb && r.KeyType == typeof(TData));
         }
 
-        public void SetCustomDataProvider(IDataProvider<T, TKey> dataProvider)
+        private Route<T> GetRouteByName(HttpRequestMessage request)
         {
-            if (dataProvider == null)
+            var routeData = request.GetRouteData();
+            if (routeData != null)
             {
-                throw new ArgumentNullException("dataProvider");
+                var routeName = routeData.Route.GetRouteName();
+                return _routes.FirstOrDefault(r => string.Equals(r.Name, routeName, StringComparison.OrdinalIgnoreCase));
             }
 
-            _customDataProvider = dataProvider;
-        }
-
-        public IEnumerable<T> GetList()
-        {
-            if (HasCustomDataProvider)
-            {
-                return _customDataProvider.Get();
-            }
-
-            if (HasListDataProvider)
-            {
-                return _returnsIEnumerableOfT.Get();
-            }
-
-            throw new InvalidOperationException();
-        }
-
-        public T Get(TKey id)
-        {
-            if (HasCustomDataProvider)
-            {
-                return _customDataProvider.GetByKey(id);
-            }
-
-            if (HasSingleDataProvider)
-            {
-                return _returnsT.GetByKey(id);
-            }
-
-            throw new InvalidOperationException();
+            return null;
         }
     }
 }
