@@ -1,4 +1,6 @@
-﻿using System.Web.Http;
+﻿using System.Linq;
+using System.Web;
+using System.Web.Http;
 using FluentWebApi.Configuration;
 using FluentWebApi.Model;
 
@@ -11,6 +13,15 @@ namespace FluentWebApi.Controllers
         public FluentWebApiController()
         {
             _modelBinder = ApiModelBinder<T>.Instance;
+        }
+
+        [HttpOptions]
+        public IHttpActionResult AllowedMethods()
+        {
+            var allowedVerbs = _modelBinder.EnabledVerbs;
+            HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Methods", string.Join(",", allowedVerbs.Select(v => v.Verb)));
+
+            return Ok();
         }
 
         public IHttpActionResult Get()

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Web.Http.Routing;
 using FluentWebApi.Model;
+using FluentWebApi.Routing;
 
 namespace FluentWebApi.Configuration
 {
@@ -11,6 +12,7 @@ namespace FluentWebApi.Configuration
     {
         private static readonly ApiModelBinder<T> _instance;
         private readonly IList<Route<T>> _routes = new List<Route<T>>();
+        private readonly HashSet<HttpVerb> _enabledVerbs = new HashSet<HttpVerb>();
 
         static ApiModelBinder()
         {
@@ -27,6 +29,14 @@ namespace FluentWebApi.Configuration
             get
             {
                 return _instance;
+            }
+        }
+        
+        public IEnumerable<HttpVerb> EnabledVerbs
+        {
+            get
+            {
+                return _enabledVerbs.AsEnumerable();
             }
         }
 
@@ -128,6 +138,11 @@ namespace FluentWebApi.Configuration
             }
 
             return null;
+        }
+
+        public void EnableVerb(HttpVerb verb)
+        {
+            _enabledVerbs.Add(verb);
         }
     }
 }
