@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Web.Http.Routing;
 using FluentWebApi.Model;
-using FluentWebApi.Routing;
 
 namespace FluentWebApi.Configuration
 {
@@ -31,59 +30,101 @@ namespace FluentWebApi.Configuration
             }
         }
 
-        public Route<T> AddRoute(HttpVerb httpVerb, IDictionary<string, string> routeDictionary = null)
+        public Route<T> GetOrCreateRoute(IDictionary<string, string> routeDictionary = null)
         {
-            return AddRoute(httpVerb, null, routeDictionary);
+            return GetOrCreateRoute(null, routeDictionary);
         }
 
-        public Route<T, TData> AddRoute<TData>(HttpVerb httpVerb, IDictionary<string, string> routeDictionary = null)
+        public Route<T, TData> GetOrCreateRoute<TData>(IDictionary<string, string> routeDictionary = null)
         {
-            var route = new Route<T, TData>(httpVerb, routeDictionary);
-            _routes.Add(route);
+            var route = GetRoute<TData>(routeDictionary) as Route<T, TData>;
+            if (route != null && routeDictionary != null)
+            {
+                // Check if the name of the route we found matches the one in the dictionary. If they do not match, we need to create
+                // a new route!
+                if (!string.Equals(route.Name, routeDictionary.GetRouteName(), StringComparison.OrdinalIgnoreCase))
+                {
+                    route = null;
+                }
+            }
+
+            if (route == null)
+            {
+                route = new Route<T, TData>(routeDictionary);
+                _routes.Add(route);
+            }
 
             return route;
         }
 
-        private Route<T> AddRoute(HttpVerb httpVerb, Type parameter, IDictionary<string, string> routeDictionary)
+        private Route<T> GetOrCreateRoute(Type parameter, IDictionary<string, string> routeDictionary)
         {
-            var route = new Route<T>(httpVerb, parameter, routeDictionary);
-            _routes.Add(route);
+            Route<T> route = GetRoute(routeDictionary);
+            if (route == null)
+            {
+                route = new Route<T>(parameter, routeDictionary);
+                _routes.Add(route);
+            }
 
             return route;
         }
 
-        public Route<T> GetRoute(HttpVerb httpVerb, HttpRequestMessage request)
+        public Route<T> GetRoute(HttpRequestMessage request)
         {
-            var route = GetRouteByName(request);
+            var routeName = GetRouteNameFromRequest(request);
+            return GetRoute(routeName);
+        }
+
+        public Route<T> GetRoute<TData>(HttpRequestMessage request)
+        {
+            var routeName = GetRouteNameFromRequest(request);
+            return GetRoute(routeName, typeof(TData));
+        }
+
+        private Route<T> GetRoute(IDictionary<string, string> routeDictionary)
+        {
+            string routeName = null;
+            if (routeDictionary != null)
+            {
+                routeName = routeDictionary.GetRouteName();
+            }
+
+            return GetRoute(routeName);
+        }
+
+        private Route<T> GetRoute<TData>(IDictionary<string, string> routeDictionary)
+        {
+            string routeName = null;
+            if (routeDictionary != null)
+            {
+                routeName = routeDictionary.GetRouteName();
+            }
+
+            return GetRoute(routeName, typeof(TData));
+        }
+
+        private Route<T> GetRoute(string routeName, Type keyType = null)
+        {
+            Route<T> route = null;
+            if (routeName != null)
+            {
+                route = _routes.FirstOrDefault(r => string.Equals(r.Name, routeName, StringComparison.OrdinalIgnoreCase));
+            }
 
             if (route != null)
             {
                 return route;
             }
-            
-            return _routes.FirstOrDefault(r => r.HttpVerb == httpVerb && r.KeyType == null);
+
+            return _routes.FirstOrDefault(r => r.KeyType == keyType);
         }
 
-        public Route<T> GetRoute<TData>(HttpVerb httpVerb, HttpRequestMessage request)
-        {
-            var route = GetRouteByName(request);
-
-            if (route != null)
-            {
-                return route;
-            }
-
-            return _routes.FirstOrDefault(
-                r => r.HttpVerb == httpVerb && r.KeyType == typeof(TData));
-        }
-
-        private Route<T> GetRouteByName(HttpRequestMessage request)
+        private string GetRouteNameFromRequest(HttpRequestMessage request)
         {
             var routeData = request.GetRouteData();
             if (routeData != null)
             {
-                var routeName = routeData.Route.GetRouteName();
-                return _routes.FirstOrDefault(r => string.Equals(r.Name, routeName, StringComparison.OrdinalIgnoreCase));
+                return routeData.Route.GetRouteName();
             }
 
             return null;

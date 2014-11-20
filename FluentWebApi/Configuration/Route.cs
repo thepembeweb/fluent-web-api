@@ -5,7 +5,6 @@ using System.Text;
 using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
-using FluentWebApi.Routing;
 using FluentWebApi.Services;
 
 namespace FluentWebApi.Configuration {
@@ -34,13 +33,12 @@ namespace FluentWebApi.Configuration {
         private static readonly Type ModelType = typeof(T);
         // ReSharper enable StaticFieldInGenericType
 
-        internal Route(HttpVerb httpVerb) : this(httpVerb, null, null) { }
+        internal Route() : this(null, null) { }
 
-        internal Route(HttpVerb httpVerb, Type keyType) : this(httpVerb, keyType, null) { }
+        internal Route(Type keyType) : this(keyType, null) { }
 
-        internal Route(HttpVerb httpVerb, Type keyType, IDictionary<string, string> routeDictionary)
+        internal Route(Type keyType, IDictionary<string, string> routeDictionary)
         {
-            HttpVerb = httpVerb;
             KeyType = keyType;
             RouteDictionary = routeDictionary;
 
@@ -103,9 +101,9 @@ namespace FluentWebApi.Configuration {
                 }
             }
 
-            // Return a route name based on the IApiModel, the verb, and key type
+            // Return a route name based on the IApiModel and key type
             var routeNameBuilder = new StringBuilder(64);
-            routeNameBuilder.AppendFormat("{0}.{1}", typeof(T).Name, HttpVerb.Verb);
+            routeNameBuilder.Append(typeof(T).Name);
 
             if (KeyType != null)
             {
@@ -155,12 +153,13 @@ namespace FluentWebApi.Configuration {
 
         internal IDictionary<string, string> RouteDictionary { get; private set; }
 
-        internal HttpVerb HttpVerb { get; private set; }
         internal Type KeyType { get; private set; }
 
         internal Func<IEnumerable<T>> CollectionRetriever { get; set; }
 
         internal Func<object, T> ItemRetriever { get; private set; }
+
+        public Func<T, T> Creator { get; set; }
 
         /// <summary>
         /// Assigns the given delegate to <see cref="ItemRetriever"/> but boxes the typed parameter.
@@ -175,7 +174,7 @@ namespace FluentWebApi.Configuration {
         internal Func<Responder, IHttpActionResult> Replier { get; set; }
 
         internal Func<Responder, object, IHttpActionResult> ReplierWithId { get; private set; }
-
+        
         /// <summary>
         /// Assigns the given delegate to <see cref="ReplierWithId"/> but boxes the typed parameter.
         /// </summary>
@@ -209,9 +208,9 @@ namespace FluentWebApi.Configuration {
 
     public class Route<T, TKey> : Route<T> where T : class, IApiModel
     {
-        internal Route(HttpVerb httpVerb) : this(httpVerb, null) { }
+        internal Route() : this(null) { }
 
-        internal Route(HttpVerb httpVerb, IDictionary<string, string> routeDictionary) 
-            : base(httpVerb, typeof(TKey), routeDictionary) { }
+        internal Route(IDictionary<string, string> routeDictionary) 
+            : base(typeof(TKey), routeDictionary) { }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System.Web.Http;
 using FluentWebApi.Configuration;
 using FluentWebApi.Model;
-using FluentWebApi.Routing;
 
 namespace FluentWebApi.Controllers
 {
@@ -16,7 +15,7 @@ namespace FluentWebApi.Controllers
 
         public IHttpActionResult Get()
         {
-            var route = _modelBinder.GetRoute(HttpVerb.Get, Request);
+            var route = _modelBinder.GetRoute(Request);
             if (route == null)
             {
                 //TODO Provide a descriptive exception
@@ -33,7 +32,7 @@ namespace FluentWebApi.Controllers
 
         public IHttpActionResult GetById(TKey id)
         {
-            var route = _modelBinder.GetRoute<TKey>(HttpVerb.Get, Request);
+            var route = _modelBinder.GetRoute<TKey>(Request);
             if (route == null)
             {
                 //TODO Provide a descriptive exception
@@ -53,6 +52,40 @@ namespace FluentWebApi.Controllers
 
             return Ok(model);
         }
+
+        public IHttpActionResult Post(T model)
+        {
+            var route = _modelBinder.GetRoute(Request);
+            if (route == null)
+            {
+                //TODO Provide a descriptive exception
+                return InternalServerError();
+            }
+
+            // TODO reply mechanism
+            //if (route.Replier != null)
+            //{
+            //    return route.Reply(this, model);
+            //}
+
+            if (ModelState.IsValid)
+            {
+                model = route.Creator(model);
+                
+                var getbyIdRoute = _modelBinder.GetRoute<TKey>(Request);
+                if (getbyIdRoute != null)
+                {
+                    // TODO Currently returns a route pointing to /api/resource?Id={id} ...
+                    return CreatedAtRoute(getbyIdRoute.Name, new { model.Id }, model);
+                }
+                
+                // No ID route found. Return 200 OK with the newly created item, although this is not really RESTful...
+                return Ok(model);
+            }
+
+            return BadRequest(ModelState);
+        }
+
 
     }
 }

@@ -27,7 +27,7 @@ namespace FluentWebApi.Sample
                 // When you perform a GET on the Customer resource
                 OnGet(() => Resource.Of<Customer>()).
                 // Use this method to retrieve the customers
-                Use(() => data);
+                ReadUsing(() => data);
                 // And reply using the default mechanism
 
 
@@ -36,7 +36,7 @@ namespace FluentWebApi.Sample
                 // When you perform a GET with an int ID on the Customer resource
                 OnGet((int id) => Resource.Of<Customer>()).
                 // Use this method to retrieve the customer
-                Use(id => data.FirstOrDefault(c => c.Id == id));
+                ReadUsing(id => data.FirstOrDefault(c => c.Id == id));
                 // And reply using the default mechanism
 
 
@@ -53,6 +53,11 @@ namespace FluentWebApi.Sample
 
                     return controller.Ok(new { FullName = string.Format("{0} {1}", model.FirstName, model.LastName) });
                 });
+
+            // POST /api/Customer
+            request.
+                OnPost(Resource.Of<Customer>()).
+                CreateUsing(customer => data.Add(customer));
         }
     }
 }

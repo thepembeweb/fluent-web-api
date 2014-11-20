@@ -7,6 +7,8 @@ using FluentWebApi.Controllers;
 using FluentWebApi.Model;
 using FluentWebApi.Routing;
 
+// TODO OnGet/Post/Put => mark verb as being allowed on the model! Return 406 if not allowed in the FluentWebApiController
+
 // ReSharper disable once CheckNamespace
 namespace FluentWebApi.Configuration
 {
@@ -83,10 +85,7 @@ namespace FluentWebApi.Configuration
         /// Adds a <see cref="HttpVerb.Post"/> route for the resource type <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
-        /// <param name="request"></param>
-        /// <param name="model">An instance of the model class, can be null</param>
-        /// <returns></returns>
-        public static Route<T> OnPost<T>(this FluentWebApiRequest request, T model) where T : class, IApiModel
+        public static Route<T> OnPost<T>(this FluentWebApiRequest request, T model = default(T)) where T : class, IApiModel
         {
             return OnVerb<T>(HttpVerb.Post);
         }
@@ -137,17 +136,17 @@ namespace FluentWebApi.Configuration
             where T : class, IApiModel
         {
             var apiModelBinder = ApiModelBinder<T>.Instance;
-            return apiModelBinder.AddRoute(verb);
+            return apiModelBinder.GetOrCreateRoute();
         }
 
         private static Route<T, TParams> OnVerb<T, TParams>(HttpVerb verb, TParams parameters, IDictionary<string, string> routeDictionary = null) 
             where T : class, IApiModel
         {
             var apiModelBinder = ApiModelBinder<T>.Instance;
-            return apiModelBinder.AddRoute<TParams>(verb, routeDictionary);
+            return apiModelBinder.GetOrCreateRoute<TParams>(routeDictionary);
         }
 
-        public static Route<T> Use<T>(this Route<T> route, Func<IEnumerable<T>> func)
+        public static Route<T> ReadUsing<T>(this Route<T> route, Func<IEnumerable<T>> func)
             where T : class, IApiModel
         {
             if (route == null)
@@ -164,7 +163,7 @@ namespace FluentWebApi.Configuration
             return route;
         }
 
-        public static Route<T, TKey> Use<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
+        public static Route<T, TKey> ReadUsing<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
             where T : class, IApiModel<TKey>
         {
             if (route == null)
@@ -178,6 +177,33 @@ namespace FluentWebApi.Configuration
             }
 
             route.SetItemRetriever(func);
+            return route;
+        }
+
+        public static Route<T> CreateUsing<T>(this Route<T> route, Action<T> method)
+            where T : class, IApiModel
+        {
+            return CreateUsing(route, data =>
+            {
+                method(data);
+                return data;
+            });
+        }
+
+        public static Route<T> CreateUsing<T>(this Route<T> route, Func<T, T> method)
+            where T : class, IApiModel
+        {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route");
+            }
+
+            if (method == null)
+            {
+                throw new ArgumentNullException("method");
+            }
+
+            route.Creator = method;
             return route;
         }
 
