@@ -71,11 +71,10 @@ namespace FluentWebApi.Controllers
             if (ModelState.IsValid)
             {
                 model = route.Creator(model);
-                
-                var getbyIdRoute = _modelBinder.GetRoute<TKey>(Request);
+
+                var getbyIdRoute = _modelBinder.GetRoute(null, typeof(TKey));
                 if (getbyIdRoute != null)
                 {
-                    // TODO Currently returns a route pointing to /api/resource?Id={id} ...
                     return CreatedAtRoute(getbyIdRoute.Name, new { model.Id }, model);
                 }
                 

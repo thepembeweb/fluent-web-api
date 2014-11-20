@@ -103,7 +103,7 @@ namespace FluentWebApi.Configuration
             return GetRoute(routeName, typeof(TData));
         }
 
-        private Route<T> GetRoute(string routeName, Type keyType = null)
+        internal Route<T> GetRoute(string routeName, Type keyType = null)
         {
             Route<T> route = null;
             if (routeName != null)
