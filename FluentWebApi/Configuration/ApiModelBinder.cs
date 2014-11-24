@@ -8,11 +8,20 @@ using FluentWebApi.Routing;
 
 namespace FluentWebApi.Configuration
 {
-    class ApiModelBinder<T> : IApiModelBinder<T> where T : class, IApiModel
+    /// <summary>
+    /// This class holds the Fluent Web API configuration for any given type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">A class that implements the <see cref="IApiModel"/> interface.</typeparam>
+    internal class ApiModelBinder<T> : IApiModelBinder<T> where T : class, IApiModel
     {
+        // ApiModelBinder<T> is a singleton
         private static readonly ApiModelBinder<T> _instance;
+
+        // Store all routes that have been defined for this model class.
         private readonly IList<Route<T>> _routes = new List<Route<T>>();
-        private readonly HashSet<HttpVerb> _enabledVerbs = new HashSet<HttpVerb>();
+
+        // And remember which HTTP verbs are allowed.
+        private readonly HashSet<HttpVerb> _allowedVerbs = new HashSet<HttpVerb>();
 
         static ApiModelBinder()
         {
@@ -24,6 +33,9 @@ namespace FluentWebApi.Configuration
             
         }
 
+        /// <summary>
+        /// Returns the singleton instance of <see cref="ApiModelBinder{T}"/>.
+        /// </summary>
         public static ApiModelBinder<T> Instance
         {
             get
@@ -32,19 +44,30 @@ namespace FluentWebApi.Configuration
             }
         }
         
-        public IEnumerable<HttpVerb> EnabledVerbs
+        /// <summary>
+        /// Returns an enumeration of all allowed HTTP verbs for the model bound to this <see cref="ApiModelBinder{T}"/>.
+        /// </summary>
+        public IEnumerable<HttpVerb> AllowedVerbs
         {
             get
             {
-                return _enabledVerbs.AsEnumerable();
+                return _allowedVerbs.AsEnumerable();
             }
         }
 
+        /// <summary>
+        /// Retrieves or creates a <see cref="Route{T}"/> that matches the settings in the <paramref name="routeDictionary"/>.
+        /// </summary>
+        /// <param name="routeDictionary">Optional. When defined, the <see cref="IDictionary{TKey, TValue}"/> should at least contain an entry for RouteName and RouteTemplate.</param>
         public Route<T> GetOrCreateRoute(IDictionary<string, string> routeDictionary = null)
         {
             return GetOrCreateRoute(null, routeDictionary);
         }
 
+        /// <summary>
+        /// Retrieves or creates a <see cref="Route{T, TData}"/> that matches the settings in the <paramref name="routeDictionary"/>.
+        /// </summary>
+        /// <param name="routeDictionary">Optional. When defined, the <see cref="IDictionary{TKey, TValue}"/> should at least contain an entry for RouteName and RouteTemplate.</param>
         public Route<T, TData> GetOrCreateRoute<TData>(IDictionary<string, string> routeDictionary = null)
         {
             var route = GetRoute<TData>(routeDictionary) as Route<T, TData>;
@@ -79,12 +102,18 @@ namespace FluentWebApi.Configuration
             return route;
         }
 
+        /// <summary>
+        /// Retrieves the <see cref="Route{T}"/> that matches the given <see cref="HttpRequestMessage"/>.
+        /// </summary>
         public Route<T> GetRoute(HttpRequestMessage request)
         {
             var routeName = GetRouteNameFromRequest(request);
             return GetRoute(routeName);
         }
 
+        /// <summary>
+        /// Retrieves the <see cref="Route{T}"/> that matches the given <see cref="HttpRequestMessage"/>.
+        /// </summary>
         public Route<T> GetRoute<TData>(HttpRequestMessage request)
         {
             var routeName = GetRouteNameFromRequest(request);
@@ -140,9 +169,13 @@ namespace FluentWebApi.Configuration
             return null;
         }
 
-        public void EnableVerb(HttpVerb verb)
+        /// <summary>
+        /// Marks the given <paramref name="verb"/> as allowed.
+        /// </summary>
+        /// <param name="verb"></param>
+        public void AllowVerb(HttpVerb verb)
         {
-            _enabledVerbs.Add(verb);
+            _allowedVerbs.Add(verb);
         }
     }
 }

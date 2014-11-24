@@ -1,8 +1,10 @@
 ﻿using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Http;
 using FluentWebApi.Configuration;
 using FluentWebApi.Model;
+using FluentWebApi.Routing;
 
 namespace FluentWebApi.Controllers
 {
@@ -15,17 +17,33 @@ namespace FluentWebApi.Controllers
             _modelBinder = ApiModelBinder<T>.Instance;
         }
 
+        private void AddAllowedVerbsToHeader()
+        {
+            var allowedVerbs = _modelBinder.AllowedVerbs;
+            HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Methods", string.Join(",", allowedVerbs.Select(v => v.Verb)));
+        }
+
+        private bool IsVerbAllowed(HttpVerb verb)
+        {
+            return _modelBinder.AllowedVerbs.Any(v => v.Verb == verb.Verb);
+        }
+        
         [HttpOptions]
         public IHttpActionResult AllowedMethods()
         {
-            var allowedVerbs = _modelBinder.EnabledVerbs;
-            HttpContext.Current.Response.Headers.Add("Access-Control-Allow-Methods", string.Join(",", allowedVerbs.Select(v => v.Verb)));
+            AddAllowedVerbsToHeader();
 
             return Ok();
         }
 
         public IHttpActionResult Get()
         {
+            if (!IsVerbAllowed(HttpVerb.Get))
+            {
+                AddAllowedVerbsToHeader();
+                return StatusCode(HttpStatusCode.MethodNotAllowed);
+            }
+
             var route = _modelBinder.GetRoute(Request);
             if (route == null)
             {
@@ -43,6 +61,12 @@ namespace FluentWebApi.Controllers
 
         public IHttpActionResult GetById(TKey id)
         {
+            if (!IsVerbAllowed(HttpVerb.Get))
+            {
+                AddAllowedVerbsToHeader();
+                return StatusCode(HttpStatusCode.MethodNotAllowed);
+            }
+
             var route = _modelBinder.GetRoute<TKey>(Request);
             if (route == null)
             {
@@ -66,6 +90,12 @@ namespace FluentWebApi.Controllers
 
         public IHttpActionResult Post(T model)
         {
+            if (!IsVerbAllowed(HttpVerb.Post))
+            {
+                AddAllowedVerbsToHeader();
+                return StatusCode(HttpStatusCode.MethodNotAllowed);
+            }
+
             var route = _modelBinder.GetRoute(Request);
             if (route == null)
             {

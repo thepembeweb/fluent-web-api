@@ -8,6 +8,9 @@ using FluentWebApi.Model;
 using FluentWebApi.Services;
 
 namespace FluentWebApi.Configuration {
+    /// <summary>
+    /// Defines some useful constants to configure the routing engine.
+    /// </summary>
     public class Route
     {
         private Route() {}
@@ -20,10 +23,20 @@ namespace FluentWebApi.Configuration {
         internal const string ControllerName = "ControllerName";
         
         // RouteDictionary constants
+        /// <summary>
+        /// The name of the RouteTemplate configuration entry
+        /// </summary>
         public const string RouteTemplate = "RouteTemplate";
+
+        /// <summary>
+        /// The name of the RouteName configuration entry
+        /// </summary>
         public const string RouteName = "RouteName";
     }
 
+    /// <summary>
+    /// Defines a route for an <see cref="IApiModel"/>.
+    /// </summary>
     public class Route<T>
         where T : class, IApiModel {
 
@@ -59,6 +72,10 @@ namespace FluentWebApi.Configuration {
             GlobalConfiguration.Configuration.Routes.Add(Name, httpRoute);
         }
 
+        /// <summary>
+        /// Retrieves the route template string if defined in the <see cref="RouteDictionary"/>, or generates a route template
+        /// based on the type name of <typeparamref name="T"/> and whether <see cref="KeyType"/> has been set.
+        /// </summary>
         private string GetRouteTemplate()
         {
             if (RouteDictionary != null)
@@ -70,10 +87,11 @@ namespace FluentWebApi.Configuration {
                 }
             }
 
-            // Build a template based on the current IApiModel type
+            // Build a template based on the current IApiModel type name
             var routeTemplateBuilder = new StringBuilder(64);
             routeTemplateBuilder.AppendFormat("api/{0}", typeof(T).Name);
 
+            // If KeyType is set, this route needs an {id} part.
             if (KeyType != null)
             {
                 routeTemplateBuilder.Append("/{id}");
@@ -90,6 +108,10 @@ namespace FluentWebApi.Configuration {
             }
         }
 
+        /// <summary>
+        /// Retrieves the route name if defined in the <see cref="RouteDictionary"/>, or generates a route name
+        /// based on the type name of <typeparamref name="T"/> and the type of <see cref="KeyType"/>, if set.
+        /// </summary>
         private string GetRouteName()
         {
             if (RouteDictionary != null)

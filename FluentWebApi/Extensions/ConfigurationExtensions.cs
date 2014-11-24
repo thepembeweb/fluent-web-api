@@ -136,7 +136,7 @@ namespace FluentWebApi.Configuration
             where T : class, IApiModel
         {
             var apiModelBinder = ApiModelBinder<T>.Instance;
-            apiModelBinder.EnableVerb(verb);
+            apiModelBinder.AllowVerb(verb);
 
             return apiModelBinder.GetOrCreateRoute();
         }
@@ -145,7 +145,7 @@ namespace FluentWebApi.Configuration
             where T : class, IApiModel
         {
             var apiModelBinder = ApiModelBinder<T>.Instance;
-            apiModelBinder.EnableVerb(verb);
+            apiModelBinder.AllowVerb(verb);
 
             return apiModelBinder.GetOrCreateRoute<TParams>(routeDictionary);
         }
