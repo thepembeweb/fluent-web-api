@@ -192,6 +192,8 @@ namespace FluentWebApi.Configuration {
 
         internal Func<Responder, T, IHttpActionResult> ReplierWithModel { get; set; }
 
+        internal Func<Responder, object, T, IHttpActionResult> ReplierWithIdAndModel { get; set; }
+
         
         internal IEnumerable<T> GetData()
         {
@@ -216,6 +218,11 @@ namespace FluentWebApi.Configuration {
         internal IHttpActionResult Reply(ApiController controller, T model)
         {
             return ReplierWithModel(new Responder(controller), model);
+        }
+
+        internal IHttpActionResult Reply(ApiController controller, object id, T model)
+        {
+            return ReplierWithIdAndModel(new Responder(controller), id, model);
         }
     }
 

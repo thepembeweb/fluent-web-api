@@ -58,6 +58,19 @@ namespace FluentWebApi.Sample
             request.
                 OnPost(Resource.Of<Customer>()).
                 CreateUsing(customer => data.Add(customer));
+
+            // PUT /api/Customer/1
+            request.
+                OnPut((int id) => Resource.Of<Customer>()).
+                UpdateUsing((id, customer) =>
+                {
+                    var idx = data.FindIndex(c => c.Id == id);
+                    if (idx != -1)
+                    {
+                        data[idx].FirstName = customer.FirstName;
+                        data[idx].LastName = customer.LastName;
+                    }
+                });
         }
     }
 }

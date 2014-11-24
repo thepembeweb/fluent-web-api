@@ -131,6 +131,41 @@ namespace FluentWebApi.Controllers
             return BadRequest(ModelState);
         }
 
-        //TODO implement PUT, PATCH, DELETE, HEAD
+        public IHttpActionResult Put(TKey id, T model)
+        {
+            if (!IsVerbAllowed(HttpVerb.Put))
+            {
+                AddAllowedVerbsToHeader();
+                return StatusCode(HttpStatusCode.MethodNotAllowed);
+            }
+
+            var route = _modelBinder.GetRoute(Request);
+            if (route == null)
+            {
+                return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
+            }
+
+            if (route.ReplierWithIdAndModel != null)
+            {
+                return route.Reply(this, id, model);
+            }
+
+            // TODO What should we do with PUT requests that allow API consumers to create data with the requested ID?
+            var original = route.GetDataById(id);
+            if (original == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                route.Updater(id, model);
+                return Ok(model);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        //TODO implement PATCH, DELETE, HEAD
     }
 }

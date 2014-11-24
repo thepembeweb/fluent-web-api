@@ -90,18 +90,15 @@ namespace FluentWebApi.Configuration
 
         /// <summary>
         /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Put"/> verb as allowed.
-        /// The route will also have a <paramref name="id"/> parameter to identify the resource being updated (or created), 
-        /// using the values stored in <paramref name="model"/>.
+        /// The route will also have an ID parameter to identify the resource being updated (or created), 
+        /// using the values stored in the model.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
-        /// <param name="request"></param>
-        /// <param name="id">Any value of <typeparamref name="TKey"/></param>
-        /// <param name="model">An instance of the model class, can be null</param>
         /// <returns></returns>
-        public static Route<T, TKey> OnPut<T, TKey>(this FluentWebApiRequest request, TKey id, T model) where T : class, IApiModel
+        public static Route<T, TKey> OnPut<T, TKey>(this FluentWebApiRequest request, Expression<Func<TKey, T>> expression = null) where T : class, IApiModel
         {
-            return OnVerb<T, TKey>(HttpVerb.Put, id);
+            return OnVerb<T, TKey>(HttpVerb.Put, default(TKey));
         }
 
         /// <summary>
@@ -325,6 +322,26 @@ namespace FluentWebApi.Configuration
             }
 
             route.ReplierWithModel = func;
+            return route;
+        }
+
+        /// <summary>
+        /// Configures Fluent Web API to use a custom reply instead of its default behavior when responding to the <paramref name="route"/>.
+        /// </summary>
+        public static Route<T, TKey> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<Responder, TKey, T, IHttpActionResult> func)
+            where T : class, IApiModel<TKey>
+        {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route");
+            }
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+            route.ReplierWithIdAndModel = (r, o, m) => func(r, (TKey)o, m);
             return route;
         }
 
