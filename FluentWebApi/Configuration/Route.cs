@@ -196,7 +196,9 @@ namespace FluentWebApi.Configuration {
         internal Func<Responder, IHttpActionResult> Replier { get; set; }
 
         internal Func<Responder, object, IHttpActionResult> ReplierWithId { get; private set; }
-        
+
+        internal Func<Responder, T, IHttpActionResult> ReplierWithModel { get; set; }
+
         /// <summary>
         /// Assigns the given delegate to <see cref="ReplierWithId"/> but boxes the typed parameter.
         /// </summary>
@@ -225,6 +227,11 @@ namespace FluentWebApi.Configuration {
         internal IHttpActionResult Reply(ApiController controller, object id)
         {
             return ReplierWithId(new Responder(controller), id);
+        }
+
+        internal IHttpActionResult Reply(ApiController controller, T model)
+        {
+            return ReplierWithModel(new Responder(controller), model);
         }
     }
 

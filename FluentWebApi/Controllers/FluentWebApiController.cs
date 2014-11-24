@@ -1,13 +1,20 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Http;
 using FluentWebApi.Configuration;
 using FluentWebApi.Model;
+using FluentWebApi.Resources;
 using FluentWebApi.Routing;
 
 namespace FluentWebApi.Controllers
 {
+    /// <summary>
+    /// Web API controller class for an <see cref="IApiModel"/>. This class will be instantiated when a Fluent Web API route is being hit.
+    /// </summary>
+    /// <typeparam name="T">A class that implements <see cref="IApiModel{TKey}"/>.</typeparam>
+    /// <typeparam name="TKey">The type of the key that uniquely identifies an instance of <typeparamref name="T"/>.</typeparam>
     internal class FluentWebApiController<T, TKey> : ApiController where T : class, IApiModel<TKey>
     {
         private readonly ApiModelBinder<T> _modelBinder;
@@ -40,15 +47,15 @@ namespace FluentWebApi.Controllers
         {
             if (!IsVerbAllowed(HttpVerb.Get))
             {
+                // 405 - Method not allowed + header mentioning the allowed verbs
                 AddAllowedVerbsToHeader();
-                return StatusCode(HttpStatusCode.MethodNotAllowed);
+                return StatusCode(HttpStatusCode.MethodNotAllowed);  
             }
 
             var route = _modelBinder.GetRoute(Request);
             if (route == null)
             {
-                //TODO Provide a descriptive exception
-                return InternalServerError();
+                return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
             if (route.Replier != null)
@@ -70,8 +77,7 @@ namespace FluentWebApi.Controllers
             var route = _modelBinder.GetRoute<TKey>(Request);
             if (route == null)
             {
-                //TODO Provide a descriptive exception
-                return InternalServerError();
+                return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
             if (route.ReplierWithId != null)
@@ -99,15 +105,13 @@ namespace FluentWebApi.Controllers
             var route = _modelBinder.GetRoute(Request);
             if (route == null)
             {
-                //TODO Provide a descriptive exception
-                return InternalServerError();
+                return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
-            // TODO reply mechanism
-            //if (route.Replier != null)
-            //{
-            //    return route.Reply(this, model);
-            //}
+            if (route.ReplierWithModel != null)
+            {
+                return route.Reply(this, model);
+            }
 
             if (ModelState.IsValid)
             {
@@ -125,7 +129,5 @@ namespace FluentWebApi.Controllers
 
             return BadRequest(ModelState);
         }
-
-
     }
 }

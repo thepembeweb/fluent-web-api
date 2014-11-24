@@ -245,6 +245,23 @@ namespace FluentWebApi.Configuration
             return route;
         }
 
+        public static Route<T> ReplyWith<T>(this Route<T> route, Func<Responder, T, IHttpActionResult> func)
+            where T : class, IApiModel
+        {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route");
+            }
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+            route.ReplierWithModel = func;
+            return route;
+        }
+
         private static IDictionary<string, string> ToDictionary(object values)
         {
             var valuesAsDictionary = values as IDictionary<string, string>;
