@@ -70,6 +70,7 @@ namespace FluentWebApi.Controllers
         {
             if (!IsVerbAllowed(HttpVerb.Get))
             {
+                // 405 - Method not allowed + header mentioning the allowed verbs
                 AddAllowedVerbsToHeader();
                 return StatusCode(HttpStatusCode.MethodNotAllowed);
             }
@@ -98,6 +99,7 @@ namespace FluentWebApi.Controllers
         {
             if (!IsVerbAllowed(HttpVerb.Post))
             {
+                // 405 - Method not allowed + header mentioning the allowed verbs
                 AddAllowedVerbsToHeader();
                 return StatusCode(HttpStatusCode.MethodNotAllowed);
             }
@@ -135,6 +137,7 @@ namespace FluentWebApi.Controllers
         {
             if (!IsVerbAllowed(HttpVerb.Put))
             {
+                // 405 - Method not allowed + header mentioning the allowed verbs
                 AddAllowedVerbsToHeader();
                 return StatusCode(HttpStatusCode.MethodNotAllowed);
             }
