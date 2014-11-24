@@ -71,6 +71,10 @@ namespace FluentWebApi.Sample
                         data[idx].LastName = customer.LastName;
                     }
                 });
+
+            request.
+                OnDelete((int id) => Resource.Of<Customer>()).
+                DeleteUsing(id => data.RemoveAll(c => c.Id == id));
         }
     }
 }

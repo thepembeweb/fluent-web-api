@@ -184,7 +184,7 @@ namespace FluentWebApi.Configuration {
         internal Func<T, T> Creator { get; set; }
 
         internal Action<object, T> Updater { get; set; }
-
+        internal Action<object> Deleter { get; set; }
         
         internal Func<Responder, IHttpActionResult> Replier { get; set; }
 
@@ -232,6 +232,5 @@ namespace FluentWebApi.Configuration {
 
         internal Route(IDictionary<string, string> routeDictionary) 
             : base(typeof(TKey), routeDictionary) { }
-
     }
 }

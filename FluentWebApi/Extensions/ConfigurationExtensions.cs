@@ -103,16 +103,14 @@ namespace FluentWebApi.Configuration
 
         /// <summary>
         /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Delete"/> verb as allowed.
-        /// The route will also have an <paramref name="id"/> parameter to identify the resource being deleted.
+        /// The route will also have an ID parameter to identify the resource being deleted.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
-        /// <param name="request"></param>
-        /// <param name="id">Any value of <typeparamref name="TKey"/></param>
         /// <returns></returns>
-        public static Route<T, TKey> OnDelete<T, TKey>(this FluentWebApiRequest request, TKey id) where T : class, IApiModel
+        public static Route<T, TKey> OnDelete<T, TKey>(this FluentWebApiRequest request, Expression<Func<TKey, T>> expression = null) where T : class, IApiModel
         {
-            return OnVerb<T, TKey>(HttpVerb.Delete, id);
+            return OnVerb<T, TKey>(HttpVerb.Delete, default(TKey));
         }
 
         /// <summary>
@@ -262,6 +260,28 @@ namespace FluentWebApi.Configuration
             }
 
             route.Updater = (o, m) => method((TKey)o, m);
+            return route;
+        }
+
+        /// <summary>
+        /// Configures the <paramref name="route"/> to use the given <paramref name="method"/> to remove an instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
+        public static Route<T, TKey> DeleteUsing<T, TKey>(this Route<T, TKey> route, Action<TKey> method)
+            where T : class, IApiModel<TKey>
+        {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route");
+            }
+
+            if (method == null)
+            {
+                throw new ArgumentNullException("method");
+            }
+
+            route.Deleter = o => method((TKey)o);
             return route;
         }
 

@@ -169,6 +169,42 @@ namespace FluentWebApi.Controllers
             return BadRequest(ModelState);
         }
 
-        //TODO implement PATCH, DELETE, HEAD
+        public IHttpActionResult Delete(TKey id)
+        {
+            if (!IsVerbAllowed(HttpVerb.Delete))
+            {
+                // 405 - Method not allowed + header mentioning the allowed verbs
+                AddAllowedVerbsToHeader();
+                return StatusCode(HttpStatusCode.MethodNotAllowed);
+            }
+
+            var route = _modelBinder.GetRoute(Request);
+            if (route == null)
+            {
+                return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
+            }
+
+            // TODO Differentiate between ReplierWithId for GET and DELETE operations
+            if (route.ReplierWithId != null)
+            {
+                return route.Reply(this, id);
+            }
+
+            var original = route.GetDataById(id);
+            if (original == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                route.Deleter(id);
+                return StatusCode(HttpStatusCode.NoContent); // 204 - No content
+            }
+
+            return BadRequest(ModelState);
+        }
+
+        //TODO implement PATCH, HEAD
     }
 }
