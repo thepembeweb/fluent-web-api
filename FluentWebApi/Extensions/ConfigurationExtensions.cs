@@ -7,15 +7,13 @@ using FluentWebApi.Controllers;
 using FluentWebApi.Model;
 using FluentWebApi.Routing;
 
-// TODO OnGet/Post/Put => mark verb as being allowed on the model! Return 406 if not allowed in the FluentWebApiController
-
 // ReSharper disable once CheckNamespace
 namespace FluentWebApi.Configuration
 {
     public static class ConfigurationExtensions
     {
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Get"/> verb as allowed.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         public static Route<T> OnGet<T>(this FluentWebApiRequest request, Expression<Func<T>> expression = null) where T : class, IApiModel
@@ -35,7 +33,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Get"/> verb as allowed.
         /// The route will also have an ID parameter to identify the resource being retrieved. 
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
@@ -46,7 +44,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Get"/> verb as allowed.
         /// The route will also have an ID parameter to identify the resource being retrieved. 
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
@@ -57,7 +55,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Get"/> verb as allowed.
         /// The route will also have an ID parameter to identify the resource being retrieved. 
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
@@ -71,7 +69,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Get"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Get"/> verb as allowed.
         /// The route will also have an ID parameter to identify the resource being retrieved. 
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
@@ -82,7 +80,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Post"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Post"/> verb as allowed.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         public static Route<T> OnPost<T>(this FluentWebApiRequest request, T model = default(T)) where T : class, IApiModel
@@ -91,7 +89,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Put"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Put"/> verb as allowed.
         /// The route will also have a <paramref name="id"/> parameter to identify the resource being updated (or created), 
         /// using the values stored in <paramref name="model"/>.
         /// </summary>
@@ -107,7 +105,7 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
-        /// Adds a <see cref="HttpVerb.Delete"/> route for the resource type <typeparamref name="T"/>.
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the <see cref="HttpVerb.Delete"/> verb as allowed.
         /// The route will also have an <paramref name="id"/> parameter to identify the resource being deleted.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
@@ -120,16 +118,32 @@ namespace FluentWebApi.Configuration
             return OnVerb<T, TKey>(HttpVerb.Delete, id);
         }
 
+        /// <summary>
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the custom <paramref name="verb" /> as allowed.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <param name="request"></param>
+        /// <param name="verb">A custom HTTP verb.</param>
+        /// <returns></returns>
         public static Route<T> OnCustomHttpVerb<T>(this FluentWebApiRequest request, string verb) where T : class, IApiModel
         {
             return OnVerb<T>(HttpVerb.GetVerb(verb));
         }
 
-        public static Route<T, TParams> OnCustomHttpVerb<T, TParams>(this FluentWebApiRequest request, string verb, TParams parameters = null) 
+        /// <summary>
+        /// Adds a route for the resource type <typeparamref name="T"/> and marks the custom <paramref name="verb" /> as allowed.
+        /// The route will also have an <paramref name="id"/> parameter to identify the resource being deleted.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
+        /// <param name="request"></param>
+        /// <param name="verb">A custom HTTP verb.</param>
+        /// <returns></returns>
+        public static Route<T, TKey> OnCustomHttpVerb<T, TKey>(this FluentWebApiRequest request, string verb, TKey id = null) 
             where T : class, IApiModel
-            where TParams : class
+            where TKey : class
         {
-            return OnVerb<T, TParams>(HttpVerb.GetVerb(verb), parameters);
+            return OnVerb<T, TKey>(HttpVerb.GetVerb(verb), id);
         }
 
         private static Route<T> OnVerb<T>(HttpVerb verb)
@@ -150,6 +164,10 @@ namespace FluentWebApi.Configuration
             return apiModelBinder.GetOrCreateRoute<TParams>(routeDictionary);
         }
 
+        /// <summary>
+        /// Configures the <paramref name="route"/> to use the given <paramref name="func"/> to retrieve an <see cref="IEnumerable{T}"/> of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         public static Route<T> ReadUsing<T>(this Route<T> route, Func<IEnumerable<T>> func)
             where T : class, IApiModel
         {
@@ -167,6 +185,12 @@ namespace FluentWebApi.Configuration
             return route;
         }
 
+        /// <summary>
+        /// Configures the <paramref name="route"/> to use the given <paramref name="func"/> to retrieve an instance of <typeparamref name="T"/>,
+        /// identified by a key value of type <typeparamref name="TKey"/>.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
         public static Route<T, TKey> ReadUsing<T, TKey>(this Route<T, TKey> route, Func<TKey, T> func)
             where T : class, IApiModel<TKey>
         {
@@ -180,10 +204,15 @@ namespace FluentWebApi.Configuration
                 throw new ArgumentNullException("func");
             }
 
-            route.SetItemRetriever(func);
+            route.ItemRetriever = o => func((TKey)o);
             return route;
         }
 
+        /// <summary>
+        /// Configures the <paramref name="route"/> to use the given <paramref name="method"/> to add a new instance of <typeparamref name="T"/>
+        /// to the data model.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
         public static Route<T> CreateUsing<T>(this Route<T> route, Action<T> method)
             where T : class, IApiModel
         {
@@ -194,6 +223,12 @@ namespace FluentWebApi.Configuration
             });
         }
 
+        /// <summary>
+        /// Configures the <paramref name="route"/> to use the given <paramref name="method"/> to add a new instance of <typeparamref name="T"/>
+        /// to the data model.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <returns>The model after it has been passed through the data layer, which can be useful to retrieve default values that are being set by a database, in example.</returns>
         public static Route<T> CreateUsing<T>(this Route<T> route, Func<T, T> method)
             where T : class, IApiModel
         {
@@ -211,6 +246,31 @@ namespace FluentWebApi.Configuration
             return route;
         }
 
+        /// <summary>
+        /// Configures the <paramref name="route"/> to use the given <paramref name="method"/> to update an instance of <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        /// <typeparam name="TKey">The type of the key that identifies the model</typeparam>
+        public static Route<T, TKey> UpdateUsing<T, TKey>(this Route<T, TKey> route, Action<TKey, T> method)
+            where T : class, IApiModel<TKey>
+        {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route");
+            }
+
+            if (method == null)
+            {
+                throw new ArgumentNullException("method");
+            }
+
+            route.Updater = (o, m) => method((TKey)o, m);
+            return route;
+        }
+
+        /// <summary>
+        /// Configures Fluent Web API to use a custom reply instead of its default behavior when responding to the <paramref name="route"/>.
+        /// </summary>
         public static Route<T> ReplyWith<T>(this Route<T> route, Func<Responder, IHttpActionResult> func)
             where T : class, IApiModel
         {
@@ -228,6 +288,9 @@ namespace FluentWebApi.Configuration
             return route;
         }
 
+        /// <summary>
+        /// Configures Fluent Web API to use a custom reply instead of its default behavior when responding to the <paramref name="route"/>.
+        /// </summary>
         public static Route<T, TKey> ReplyWith<T, TKey>(this Route<T, TKey> route, Func<Responder, TKey, IHttpActionResult> func)
             where T : class, IApiModel<TKey>
         {
@@ -241,10 +304,13 @@ namespace FluentWebApi.Configuration
                 throw new ArgumentNullException("func");
             }
 
-            route.SetReplierWithId(func);
+            route.ReplierWithId = (r, o) => func(r, (TKey)o);
             return route;
         }
 
+        /// <summary>
+        /// Configures Fluent Web API to use a custom reply instead of its default behavior when responding to the <paramref name="route"/>.
+        /// </summary>
         public static Route<T> ReplyWith<T>(this Route<T> route, Func<Responder, T, IHttpActionResult> func)
             where T : class, IApiModel
         {

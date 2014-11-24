@@ -117,6 +117,7 @@ namespace FluentWebApi.Controllers
             {
                 model = route.Creator(model);
 
+                // Note: consider caching this route to speed up additional POSTs.
                 var getbyIdRoute = _modelBinder.GetRoute(null, typeof(TKey));
                 if (getbyIdRoute != null)
                 {
@@ -129,5 +130,7 @@ namespace FluentWebApi.Controllers
 
             return BadRequest(ModelState);
         }
+
+        //TODO implement PUT, PATCH, DELETE, HEAD
     }
 }

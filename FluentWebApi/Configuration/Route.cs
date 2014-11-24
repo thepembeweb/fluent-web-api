@@ -179,36 +179,20 @@ namespace FluentWebApi.Configuration {
 
         internal Func<IEnumerable<T>> CollectionRetriever { get; set; }
 
-        internal Func<object, T> ItemRetriever { get; private set; }
+        internal Func<object, T> ItemRetriever { get; set; }
 
-        public Func<T, T> Creator { get; set; }
+        internal Func<T, T> Creator { get; set; }
 
-        /// <summary>
-        /// Assigns the given delegate to <see cref="ItemRetriever"/> but boxes the typed parameter.
-        /// </summary>
-        /// <typeparam name="TData"></typeparam>
-        /// <param name="func"></param>
-        internal void SetItemRetriever<TData>(Func<TData, T> func)
-        {
-            ItemRetriever = o => func((TData)o);
-        }
+        internal Action<object, T> Updater { get; set; }
 
+        
         internal Func<Responder, IHttpActionResult> Replier { get; set; }
 
-        internal Func<Responder, object, IHttpActionResult> ReplierWithId { get; private set; }
+        internal Func<Responder, object, IHttpActionResult> ReplierWithId { get; set; }
 
         internal Func<Responder, T, IHttpActionResult> ReplierWithModel { get; set; }
 
-        /// <summary>
-        /// Assigns the given delegate to <see cref="ReplierWithId"/> but boxes the typed parameter.
-        /// </summary>
-        /// <typeparam name="TData"></typeparam>
-        /// <param name="func"></param>
-        internal void SetReplierWithId<TData>(Func<Responder, TData, IHttpActionResult> func)
-        {
-            ReplierWithId = (r, o) => func(r, (TData)o);
-        }
-
+        
         internal IEnumerable<T> GetData()
         {
             return CollectionRetriever();
@@ -241,5 +225,6 @@ namespace FluentWebApi.Configuration {
 
         internal Route(IDictionary<string, string> routeDictionary) 
             : base(typeof(TKey), routeDictionary) { }
+
     }
 }
