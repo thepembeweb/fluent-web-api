@@ -58,7 +58,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\FluentWebApiRequest.cs" />
-    <Compile Include="Configuration\IApiModelBinder.cs" />
     <Compile Include="Configuration\ApiModelBinder.cs" />
     <Compile Include="Configuration\Resource.cs" />
     <Compile Include="Configuration\Route.cs" />

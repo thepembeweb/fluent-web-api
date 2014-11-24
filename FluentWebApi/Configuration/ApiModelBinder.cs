@@ -12,7 +12,7 @@ namespace FluentWebApi.Configuration
     /// This class holds the Fluent Web API configuration for any given type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">A class that implements the <see cref="IApiModel"/> interface.</typeparam>
-    internal class ApiModelBinder<T> : IApiModelBinder<T> where T : class, IApiModel
+    internal class ApiModelBinder<T> where T : class, IApiModel
     {
         // ApiModelBinder<T> is a singleton
         private static readonly ApiModelBinder<T> _instance;
