@@ -84,6 +84,14 @@ namespace FluentWebApi.Controllers
             return base.NotFound();
         }
 
-        
+        public new InternalServerErrorResult InternalServerError()
+        {
+            return base.InternalServerError();
+        }
+
+        public new ExceptionResult InternalServerError(Exception exception)
+        {
+            return base.InternalServerError(exception);
+        }
     }
 }

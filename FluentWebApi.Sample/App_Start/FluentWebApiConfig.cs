@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using FluentWebApi.Configuration;
@@ -38,7 +39,6 @@ namespace FluentWebApi.Sample
                 // Use this method to retrieve the customer
                 ReadUsing(id => data.FirstOrDefault(c => c.Id == id));
                 // And reply using the default mechanism
-
 
             // GET /api/Customer/1/Fullname
             request.
