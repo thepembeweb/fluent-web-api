@@ -43,6 +43,7 @@ namespace FluentWebApi.Controllers
             return Ok();
         }
 
+        [HttpGet, HttpHead]
         public IHttpActionResult Get()
         {
             if (!IsVerbAllowed(HttpVerb.Get))
@@ -66,6 +67,7 @@ namespace FluentWebApi.Controllers
             return Ok(route.GetData());
         }
 
+        [HttpGet, HttpHead]
         public IHttpActionResult GetById(TKey id)
         {
             if (!IsVerbAllowed(HttpVerb.Get))

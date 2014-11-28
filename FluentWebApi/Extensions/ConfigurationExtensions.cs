@@ -160,6 +160,32 @@ namespace FluentWebApi.Configuration
         }
 
         /// <summary>
+        /// Enables the HEAD HTTP verb for the given resource type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        public static FluentWebApiRequest EnableHeadRequests<T>(this FluentWebApiRequest request)
+            where T : class, IApiModel
+        {
+            var apiModelBinder = ApiModelBinder<T>.Instance;
+            apiModelBinder.AllowVerb(HttpVerb.Head);
+
+            return request;
+        }
+
+        /// <summary>
+        /// Enables the HEAD HTTP verb for the given resource type <typeparamref name="T"/>.
+        /// </summary>
+        /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
+        public static FluentWebApiRequest EnableHeadRequests<T>(this FluentWebApiRequest request, T resource)
+            where T : class, IApiModel
+        {
+            var apiModelBinder = ApiModelBinder<T>.Instance;
+            apiModelBinder.AllowVerb(HttpVerb.Head);
+
+            return request;
+        }
+
+        /// <summary>
         /// Configures the <paramref name="route"/> to use the given <paramref name="func"/> to retrieve an <see cref="IEnumerable{T}"/> of <typeparamref name="T"/>.
         /// </summary>
         /// <typeparam name="T">A model class that implements <see cref="IApiModel"/></typeparam>
