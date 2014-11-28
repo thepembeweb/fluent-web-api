@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Deployment.Internal;
 using System.Linq;
 using System.Text;
-using System.Web.Configuration;
 using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
