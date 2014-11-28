@@ -19,6 +19,7 @@ namespace FluentWebApi.Sample
             // Web API configuration and services
 
             var request = config.UseFluentWebApi();
+            request.EnableHeadRequests(Resource.Of<Customer>());
 
             // Add Fluent Web API routes
 
