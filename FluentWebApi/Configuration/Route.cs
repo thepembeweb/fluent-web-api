@@ -243,29 +243,4 @@ namespace FluentWebApi.Configuration {
         internal Route(IDictionary<string, string> routeDictionary) 
             : base(typeof(TKey), routeDictionary) { }
     }
-
-    public interface IGetRoute<T>
-        where T : class, IApiModel
-    {
-    }
-
-    public interface IGetByIdRoute<T, TKey>
-        where T : class, IApiModel
-    {
-    }
-
-    public interface IPostRoute<T>
-        where T : class, IApiModel
-    {
-    }
-
-    public interface IPutRoute<T, TKey>
-        where T : class, IApiModel
-    {
-    }
-
-    public interface IDeleteRoute<T, TKey>
-        where T : class, IApiModel
-    {
-    }
 }
