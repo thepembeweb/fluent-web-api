@@ -58,7 +58,7 @@ namespace FluentWebApi.Controllers
                 return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
-            if (route.Replier != null)
+            if (route.ReplyOnGet != null)
             {
                 return route.Reply(this);
             }
@@ -81,7 +81,7 @@ namespace FluentWebApi.Controllers
                 return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
-            if (route.ReplierWithId != null)
+            if (route.ReplyOnGetWithId != null)
             {
                 return route.Reply(this, id);
             }
@@ -110,7 +110,7 @@ namespace FluentWebApi.Controllers
                 return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
-            if (route.ReplierWithModel != null)
+            if (route.ReplyOnPost != null)
             {
                 return route.Reply(this, model);
             }
@@ -148,7 +148,7 @@ namespace FluentWebApi.Controllers
                 return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
-            if (route.ReplierWithIdAndModel != null)
+            if (route.ReplyOnPut != null)
             {
                 return route.Reply(this, id, model);
             }
@@ -184,10 +184,9 @@ namespace FluentWebApi.Controllers
                 return InternalServerError(new Exception(SR.ErrNoRouteConfigured));
             }
 
-            // TODO Differentiate between ReplierWithId for GET and DELETE operations
-            if (route.ReplierWithId != null)
+            if (route.ReplyOnDelete != null)
             {
-                return route.Reply(this, id);
+                return route.ReplyToDelete(this, id);
             }
 
             var original = route.GetDataById(id);

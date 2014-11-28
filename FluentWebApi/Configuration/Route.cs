@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Deployment.Internal;
 using System.Linq;
 using System.Text;
+using System.Web.Configuration;
 using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
@@ -37,7 +39,7 @@ namespace FluentWebApi.Configuration {
     /// <summary>
     /// Defines a route for an <see cref="IApiModel"/>.
     /// </summary>
-    public class Route<T>
+    public class Route<T> : IGetRoute<T>, IPostRoute<T>
         where T : class, IApiModel {
 
         // Allowed, we're caching the type definition for each IApiModel
@@ -186,13 +188,15 @@ namespace FluentWebApi.Configuration {
         internal Action<object, T> Updater { get; set; }
         internal Action<object> Deleter { get; set; }
         
-        internal Func<Responder, IHttpActionResult> Replier { get; set; }
+        internal Func<Responder, IHttpActionResult> ReplyOnGet { get; set; }
 
-        internal Func<Responder, object, IHttpActionResult> ReplierWithId { get; set; }
+        internal Func<Responder, object, IHttpActionResult> ReplyOnGetWithId { get; set; }
 
-        internal Func<Responder, T, IHttpActionResult> ReplierWithModel { get; set; }
+        internal Func<Responder, T, IHttpActionResult> ReplyOnPost { get; set; }
 
-        internal Func<Responder, object, T, IHttpActionResult> ReplierWithIdAndModel { get; set; }
+        internal Func<Responder, object, T, IHttpActionResult> ReplyOnPut { get; set; }
+
+        internal Func<Responder, object, IHttpActionResult> ReplyOnDelete { get; set; }
 
         
         internal IEnumerable<T> GetData()
@@ -207,30 +211,61 @@ namespace FluentWebApi.Configuration {
 
         internal IHttpActionResult Reply(ApiController controller)
         {
-            return Replier(new Responder(controller));
+            return ReplyOnGet(new Responder(controller));
         }
 
         internal IHttpActionResult Reply(ApiController controller, object id)
         {
-            return ReplierWithId(new Responder(controller), id);
+            return ReplyOnGetWithId(new Responder(controller), id);
+        }
+
+        internal IHttpActionResult ReplyToDelete(ApiController controller, object id)
+        {
+            return ReplyOnDelete(new Responder(controller), id);
         }
 
         internal IHttpActionResult Reply(ApiController controller, T model)
         {
-            return ReplierWithModel(new Responder(controller), model);
+            return ReplyOnPost(new Responder(controller), model);
         }
 
         internal IHttpActionResult Reply(ApiController controller, object id, T model)
         {
-            return ReplierWithIdAndModel(new Responder(controller), id, model);
+            return ReplyOnPut(new Responder(controller), id, model);
         }
     }
 
-    public class Route<T, TKey> : Route<T> where T : class, IApiModel
+    public class Route<T, TKey> : Route<T>, IGetByIdRoute<T, TKey>, IPutRoute<T, TKey>, IDeleteRoute<T, TKey>
+        where T : class, IApiModel
     {
         internal Route() : this(null) { }
 
         internal Route(IDictionary<string, string> routeDictionary) 
             : base(typeof(TKey), routeDictionary) { }
+    }
+
+    public interface IGetRoute<T>
+        where T : class, IApiModel
+    {
+    }
+
+    public interface IGetByIdRoute<T, TKey>
+        where T : class, IApiModel
+    {
+    }
+
+    public interface IPostRoute<T>
+        where T : class, IApiModel
+    {
+    }
+
+    public interface IPutRoute<T, TKey>
+        where T : class, IApiModel
+    {
+    }
+
+    public interface IDeleteRoute<T, TKey>
+        where T : class, IApiModel
+    {
     }
 }

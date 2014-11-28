@@ -72,6 +72,8 @@ namespace FluentWebApi.Sample
                     }
                 });
 
+
+            // DELETE /api/Customer/1
             request.
                 OnDelete((int id) => Resource.Of<Customer>()).
                 DeleteUsing(id => data.RemoveAll(c => c.Id == id));
