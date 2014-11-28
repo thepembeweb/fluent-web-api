@@ -15,7 +15,6 @@
         public static readonly HttpVerb Delete = new HttpVerb("DELETE");
         public static readonly HttpVerb Head = new HttpVerb("HEAD");
         public static readonly HttpVerb Patch = new HttpVerb("PATCH");
-        public static readonly HttpVerb Merge = new HttpVerb("MERGE");
 
         public static HttpVerb GetVerb(string verb)
         {
@@ -29,7 +28,6 @@
                 case "DELETE": return Delete;
                 case "HEAD": return Head;
                 case "PATCH": return Patch;
-                case "MERGE": return Merge;
             }
 
             return new HttpVerb(verb);
