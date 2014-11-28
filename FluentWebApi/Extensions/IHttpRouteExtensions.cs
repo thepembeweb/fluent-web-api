@@ -1,4 +1,5 @@
-﻿using FluentWebApi.Configuration;
+﻿using System.Collections.Generic;
+using FluentWebApi.Configuration;
 
 // ReSharper disable once CheckNamespace
 namespace System.Web.Http.Routing
@@ -14,6 +15,16 @@ namespace System.Web.Http.Routing
         public static string GetRouteName(this IHttpRoute route)
         {
             return GetValueFromDataTokens<string>(route, Route.RouteName);
+        }
+
+        /// <summary>
+        /// Tries to retrieve the route name from an <see cref="IDictionary{TKey,TData}"/>.
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <returns>The name of the route, or null if no route name was found in the <see cref="IDictionary{TKey,TData}"/>.</returns>
+        public static string GetRouteName(this IDictionary<string, string> dictionary)
+        {
+            return GetValueFromDictionary<string, string>(dictionary, Route.RouteName);
         }
 
         /// <summary>
@@ -70,6 +81,20 @@ namespace System.Web.Http.Routing
             }
 
             return default(T);
+        }
+
+        private static TData GetValueFromDictionary<TKey, TData>(IDictionary<TKey, TData> dictionary, TKey key)
+        {
+            if (dictionary != null)
+            {
+                TData value;
+                if (dictionary.TryGetValue(key, out value))
+                {
+                    return value;
+                }
+            }
+
+            return default(TData);
         }
     }
 }

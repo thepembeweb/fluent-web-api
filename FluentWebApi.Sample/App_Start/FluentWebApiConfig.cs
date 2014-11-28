@@ -24,17 +24,24 @@ namespace FluentWebApi.Sample
 
             // GET /api/Customer
             request.
-                OnGet<Customer>().
-                Use(() => data);
+                // When you perform a GET on the Customer resource
+                OnGet(() => Resource.Of<Customer>()).
+                // Use this method to retrieve the customers
+                ReadUsing(() => data);
+                // And reply using the default mechanism
+
 
             // GET /api/Customer/1
             request.
-                OnGet<Customer, int>().
-                Use(id => data.FirstOrDefault(c => c.Id == id));
+                // When you perform a GET with an int ID on the Customer resource
+                OnGet((int id) => Resource.Of<Customer>()).
+                // Use this method to retrieve the customer
+                ReadUsing(id => data.FirstOrDefault(c => c.Id == id));
+                // And reply using the default mechanism
 
             // GET /api/Customer/1/Fullname
             request.
-                OnGet<Customer, int>(new { RouteTemplate = "api/Customer/{id}/Fullname", RouteName = "GetFullNameFromCustomer" }).
+                OnGet((int id) => Resource.Of<Customer>(), new { RouteTemplate = "api/Customer/{id}/Fullname", RouteName = "GetFullNameFromCustomer" }).
                 ReplyWith((controller, id) =>
                 {
                     var model = data.FirstOrDefault(c => c.Id == id);
@@ -45,6 +52,30 @@ namespace FluentWebApi.Sample
 
                     return controller.Ok(new { FullName = string.Format("{0} {1}", model.FirstName, model.LastName) });
                 });
+
+            // POST /api/Customer
+            request.
+                OnPost(Resource.Of<Customer>()).
+                CreateUsing(customer => data.Add(customer));
+
+            // PUT /api/Customer/1
+            request.
+                OnPut((int id) => Resource.Of<Customer>()).
+                UpdateUsing((id, customer) =>
+                {
+                    var idx = data.FindIndex(c => c.Id == id);
+                    if (idx != -1)
+                    {
+                        data[idx].FirstName = customer.FirstName;
+                        data[idx].LastName = customer.LastName;
+                    }
+                });
+
+
+            // DELETE /api/Customer/1
+            request.
+                OnDelete((int id) => Resource.Of<Customer>()).
+                DeleteUsing(id => data.RemoveAll(c => c.Id == id));
         }
     }
 }

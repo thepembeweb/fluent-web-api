@@ -2,6 +2,6 @@
 {
     public class FluentWebApiRequest
     {
-         
+        internal FluentWebApiRequest() { }
     }
 }

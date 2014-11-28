@@ -5,10 +5,12 @@ using System.Text;
 using System.Web.Http;
 using FluentWebApi.Controllers;
 using FluentWebApi.Model;
-using FluentWebApi.Routing;
 using FluentWebApi.Services;
 
 namespace FluentWebApi.Configuration {
+    /// <summary>
+    /// Defines some useful constants to configure the routing engine.
+    /// </summary>
     public class Route
     {
         private Route() {}
@@ -21,11 +23,21 @@ namespace FluentWebApi.Configuration {
         internal const string ControllerName = "ControllerName";
         
         // RouteDictionary constants
+        /// <summary>
+        /// The name of the RouteTemplate configuration entry
+        /// </summary>
         public const string RouteTemplate = "RouteTemplate";
+
+        /// <summary>
+        /// The name of the RouteName configuration entry
+        /// </summary>
         public const string RouteName = "RouteName";
     }
 
-    public class Route<T>
+    /// <summary>
+    /// Defines a route for an <see cref="IApiModel"/>.
+    /// </summary>
+    public class Route<T> : IGetRoute<T>, IPostRoute<T>
         where T : class, IApiModel {
 
         // Allowed, we're caching the type definition for each IApiModel
@@ -34,13 +46,12 @@ namespace FluentWebApi.Configuration {
         private static readonly Type ModelType = typeof(T);
         // ReSharper enable StaticFieldInGenericType
 
-        internal Route(HttpVerb httpVerb) : this(httpVerb, null, null) { }
+        internal Route() : this(null, null) { }
 
-        internal Route(HttpVerb httpVerb, Type keyType) : this(httpVerb, keyType, null) { }
+        internal Route(Type keyType) : this(keyType, null) { }
 
-        internal Route(HttpVerb httpVerb, Type keyType, IDictionary<string, string> routeDictionary)
+        internal Route(Type keyType, IDictionary<string, string> routeDictionary)
         {
-            HttpVerb = httpVerb;
             KeyType = keyType;
             RouteDictionary = routeDictionary;
 
@@ -61,6 +72,10 @@ namespace FluentWebApi.Configuration {
             GlobalConfiguration.Configuration.Routes.Add(Name, httpRoute);
         }
 
+        /// <summary>
+        /// Retrieves the route template string if defined in the <see cref="RouteDictionary"/>, or generates a route template
+        /// based on the type name of <typeparamref name="T"/> and whether <see cref="KeyType"/> has been set.
+        /// </summary>
         private string GetRouteTemplate()
         {
             if (RouteDictionary != null)
@@ -72,10 +87,11 @@ namespace FluentWebApi.Configuration {
                 }
             }
 
-            // Build a template based on the current IApiModel type
+            // Build a template based on the current IApiModel type name
             var routeTemplateBuilder = new StringBuilder(64);
             routeTemplateBuilder.AppendFormat("api/{0}", typeof(T).Name);
 
+            // If KeyType is set, this route needs an {id} part.
             if (KeyType != null)
             {
                 routeTemplateBuilder.Append("/{id}");
@@ -92,6 +108,10 @@ namespace FluentWebApi.Configuration {
             }
         }
 
+        /// <summary>
+        /// Retrieves the route name if defined in the <see cref="RouteDictionary"/>, or generates a route name
+        /// based on the type name of <typeparamref name="T"/> and the type of <see cref="KeyType"/>, if set.
+        /// </summary>
         private string GetRouteName()
         {
             if (RouteDictionary != null)
@@ -103,9 +123,9 @@ namespace FluentWebApi.Configuration {
                 }
             }
 
-            // Return a route name based on the IApiModel, the verb, and key type
+            // Return a route name based on the IApiModel and key type
             var routeNameBuilder = new StringBuilder(64);
-            routeNameBuilder.AppendFormat("{0}.{1}", typeof(T).Name, HttpVerb.Verb);
+            routeNameBuilder.Append(typeof(T).Name);
 
             if (KeyType != null)
             {
@@ -155,37 +175,28 @@ namespace FluentWebApi.Configuration {
 
         internal IDictionary<string, string> RouteDictionary { get; private set; }
 
-        internal HttpVerb HttpVerb { get; private set; }
         internal Type KeyType { get; private set; }
 
         internal Func<IEnumerable<T>> CollectionRetriever { get; set; }
 
-        internal Func<object, T> ItemRetriever { get; private set; }
+        internal Func<object, T> ItemRetriever { get; set; }
 
-        /// <summary>
-        /// Assigns the given delegate to <see cref="ItemRetriever"/> but boxes the typed parameter.
-        /// </summary>
-        /// <typeparam name="TData"></typeparam>
-        /// <param name="func"></param>
-        internal void SetItemRetriever<TData>(Func<TData, T> func)
-        {
-            ItemRetriever = o => func((TData)o);
-        }
+        internal Func<T, T> Creator { get; set; }
 
-        internal Func<Responder, IHttpActionResult> Replier { get; set; }
+        internal Action<object, T> Updater { get; set; }
+        internal Action<object> Deleter { get; set; }
+        
+        internal Func<Responder, IHttpActionResult> ReplyOnGet { get; set; }
 
-        internal Func<Responder, object, IHttpActionResult> ReplierWithId { get; private set; }
+        internal Func<Responder, object, IHttpActionResult> ReplyOnGetWithId { get; set; }
 
-        /// <summary>
-        /// Assigns the given delegate to <see cref="ReplierWithId"/> but boxes the typed parameter.
-        /// </summary>
-        /// <typeparam name="TData"></typeparam>
-        /// <param name="func"></param>
-        internal void SetReplierWithId<TData>(Func<Responder, TData, IHttpActionResult> func)
-        {
-            ReplierWithId = (r, o) => func(r, (TData)o);
-        }
+        internal Func<Responder, T, IHttpActionResult> ReplyOnPost { get; set; }
 
+        internal Func<Responder, object, T, IHttpActionResult> ReplyOnPut { get; set; }
+
+        internal Func<Responder, object, IHttpActionResult> ReplyOnDelete { get; set; }
+
+        
         internal IEnumerable<T> GetData()
         {
             return CollectionRetriever();
@@ -198,20 +209,36 @@ namespace FluentWebApi.Configuration {
 
         internal IHttpActionResult Reply(ApiController controller)
         {
-            return Replier(new Responder(controller));
+            return ReplyOnGet(new Responder(controller));
         }
 
         internal IHttpActionResult Reply(ApiController controller, object id)
         {
-            return ReplierWithId(new Responder(controller), id);
+            return ReplyOnGetWithId(new Responder(controller), id);
+        }
+
+        internal IHttpActionResult ReplyToDelete(ApiController controller, object id)
+        {
+            return ReplyOnDelete(new Responder(controller), id);
+        }
+
+        internal IHttpActionResult Reply(ApiController controller, T model)
+        {
+            return ReplyOnPost(new Responder(controller), model);
+        }
+
+        internal IHttpActionResult Reply(ApiController controller, object id, T model)
+        {
+            return ReplyOnPut(new Responder(controller), id, model);
         }
     }
 
-    public class Route<T, TKey> : Route<T> where T : class, IApiModel
+    public class Route<T, TKey> : Route<T>, IGetByIdRoute<T, TKey>, IPutRoute<T, TKey>, IDeleteRoute<T, TKey>
+        where T : class, IApiModel
     {
-        internal Route(HttpVerb httpVerb) : this(httpVerb, null) { }
+        internal Route() : this(null) { }
 
-        internal Route(HttpVerb httpVerb, IDictionary<string, string> routeDictionary) 
-            : base(httpVerb, typeof(TKey), routeDictionary) { }
+        internal Route(IDictionary<string, string> routeDictionary) 
+            : base(typeof(TKey), routeDictionary) { }
     }
 }
